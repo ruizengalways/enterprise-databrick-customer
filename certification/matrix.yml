@@ -24,6 +24,8 @@ capabilities:
   exact_sha_package_consumption: passed
   deterministic_expected_outcomes: passed
   exact_sha_evidence_generation: passed
+  c3_bundle_harness: ready
+  c3_semantic_verifier: ready
   dq_quarantine_runtime: not_run
   reconciliation_runtime: not_run
   schema_evolution_runtime: not_run
@@ -31,7 +33,7 @@ capabilities:
   checkpoint_recovery_runtime: not_run
   immutable_release_evidence: planned
 latest_local_evidence:
-  record: certification/evidence/c2-baseline-2026-08-31.yml
-  framework_sha: 950f0e3752705ae82ea5e7114ae688f26179ff9f
-  customer_sha: 7e04b526b0075baaa55eb0e62d7bb942ed5a7591
-  workflow_run_id: 33381265620
+  record: certification/evidence/c2-runtime-framework-2026-08-31.yml
+  framework_sha: 20983d0960e82c8857f4b023f2331f6840149355
+  customer_sha: 0d7f241061f5cad228dc016ee54e309c67e5a9a5
+  workflow_run_id: 33388129358
