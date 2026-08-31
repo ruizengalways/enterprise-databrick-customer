@@ -1,0 +1,60 @@
+resources:
+  pipelines:
+    c3_reference_runtime:
+      name: c3-reference-runtime
+      catalog: ${var.catalog}
+      schema: default
+      serverless: true
+      root_path: ../src/certification_pipeline
+      libraries:
+        - file:
+            path: ../src/certification_pipeline/main.py
+      environment:
+        environment_version: "4"
+        dependencies:
+          - ../.framework/dist/*.whl
+      configuration:
+        edp.catalog: ${var.catalog}
+        edp.bundle_root: ${workspace.file_path}
+
+  jobs:
+    c3_certification:
+      name: c3-runtime-certification
+      max_concurrent_runs: 1
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+      tasks:
+        - task_key: seed_fixtures
+          spark_python_task:
+            python_file: ../src/certification/seed_fixtures.py
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --bundle-root
+              - ${workspace.file_path}
+          environment_key: default
+
+        - task_key: run_reference_runtime
+          depends_on:
+            - task_key: seed_fixtures
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.c3_reference_runtime.id}
+            full_refresh: true
+
+        - task_key: verify_outputs
+          depends_on:
+            - task_key: run_reference_runtime
+          spark_python_task:
+            python_file: ../src/certification/verify_outputs.py
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --bundle-root
+              - ${workspace.file_path}
+              - --framework-sha
+              - ${var.framework_sha}
+              - --customer-sha
+              - ${var.customer_sha}
+          environment_key: default
