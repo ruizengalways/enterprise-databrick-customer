@@ -33,18 +33,32 @@ def main() -> None:
     if resolved_framework_sha and resolved_framework_sha != expected_sha:
         raise SystemExit(f"framework SHA mismatch: expected {expected_sha}, got {resolved_framework_sha}")
 
+    customer_sha = os.getenv("CUSTOMER_SHA") or git_sha(ROOT) or os.getenv("GITHUB_SHA")
+    checked_out_customer_sha = git_sha(ROOT)
+    if customer_sha and checked_out_customer_sha and customer_sha != checked_out_customer_sha:
+        raise SystemExit(
+            f"customer SHA mismatch: expected {customer_sha}, checked out {checked_out_customer_sha}"
+        )
+
     evidence = {
         "schema_version": 1,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "customer_repository": "ruizengalways/enterprise-databrick-customer",
-        "customer_sha": os.getenv("GITHUB_SHA") or git_sha(ROOT),
+        "customer_sha": customer_sha,
         "framework_repository": lock["framework"]["repository"],
         "framework_sha": resolved_framework_sha or expected_sha,
         "framework_package_version": importlib.metadata.version("enterprise-databricks-framework"),
+        "workflow": {
+            "run_id": os.getenv("WORKFLOW_RUN_ID") or os.getenv("GITHUB_RUN_ID"),
+            "attempt": os.getenv("WORKFLOW_RUN_ATTEMPT") or os.getenv("GITHUB_RUN_ATTEMPT"),
+            "event": os.getenv("WORKFLOW_EVENT") or os.getenv("GITHUB_EVENT_NAME"),
+        },
         "evidence_level": "C2-package-integration",
         "claims": {
             "metadata_contract_validation": "passed_by_ci_step",
             "deterministic_fixture_tests": "passed_by_ci_step",
+            "exact_framework_sha": "verified",
+            "exact_customer_sha": "verified",
             "databricks_runtime": "not_run",
             "recovery_failure_injection": "not_run",
         },
