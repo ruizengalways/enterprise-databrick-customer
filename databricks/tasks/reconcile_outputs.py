@@ -18,7 +18,8 @@ from edp_framework.reconciliation import (
     persist_reconciliation_report,
 )
 from pyspark.sql import DataFrame, SparkSession, Window
-from pyspark.sql.functions import col, max as spark_max, row_number
+from pyspark.sql.functions import col, row_number
+from pyspark.sql.functions import max as spark_max
 
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _SHA = re.compile(r"^[0-9a-f]{40}$")
@@ -200,7 +201,12 @@ def run_group(
     }
 
 
-def run_p01(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str, list[str]]) -> list[dict[str, Any]]:
+def run_p01(
+    spark: SparkSession,
+    catalog: str,
+    spec: TableSpec,
+    groups: dict[str, list[str]],
+) -> list[dict[str, Any]]:
     return [
         run_group(
             spark,
@@ -216,7 +222,12 @@ def run_p01(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str
     ]
 
 
-def run_p02(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str, list[str]]) -> list[dict[str, Any]]:
+def run_p02(
+    spark: SparkSession,
+    catalog: str,
+    spec: TableSpec,
+    groups: dict[str, list[str]],
+) -> list[dict[str, Any]]:
     source_history = spark.table(f"{catalog}.legacy_bronze.customer_snapshot")
     latest_snapshot = max_integer(source_history, "_snapshot_id")
     source_current = temp_relation(
@@ -256,7 +267,12 @@ def run_p02(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str
     ]
 
 
-def run_p07(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str, list[str]]) -> list[dict[str, Any]]:
+def run_p07(
+    spark: SparkSession,
+    catalog: str,
+    spec: TableSpec,
+    groups: dict[str, list[str]],
+) -> list[dict[str, Any]]:
     source_frame = spark.table(f"{catalog}.customer_source.crm_customer_observations")
     cutoff = max_integer(source_frame, "row_version")
     valid = quarantine_valid_frame(spec, source_frame.where(col("row_version") <= cutoff))
@@ -264,7 +280,9 @@ def run_p07(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str
         latest_state(valid, list(spec.identity.business_keys), ["row_version", "_ingest_run_id"]),
         "c3_recon_p07_source_current",
     )
-    observed = str(max_integer(spark.table(f"{catalog}.crm_bronze.customer_observation"), "row_version"))
+    observed = str(
+        max_integer(spark.table(f"{catalog}.crm_bronze.customer_observation"), "row_version")
+    )
     return [
         run_group(
             spark,
@@ -281,7 +299,12 @@ def run_p07(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str
     ]
 
 
-def run_p10(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str, list[str]]) -> list[dict[str, Any]]:
+def run_p10(
+    spark: SparkSession,
+    catalog: str,
+    spec: TableSpec,
+    groups: dict[str, list[str]],
+) -> list[dict[str, Any]]:
     source = spark.table(f"{catalog}.customer_source.sales_customer_cdc")
     bronze = spark.table(f"{catalog}.sales_bronze.customer_cdc")
     ordering = list(spec.ordering.columns) if spec.ordering is not None else []
@@ -315,7 +338,12 @@ def run_p10(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str
     ]
 
 
-def run_p12(spark: SparkSession, catalog: str, spec: TableSpec, groups: dict[str, list[str]]) -> list[dict[str, Any]]:
+def run_p12(
+    spark: SparkSession,
+    catalog: str,
+    spec: TableSpec,
+    groups: dict[str, list[str]],
+) -> list[dict[str, Any]]:
     source_raw = spark.table(f"{catalog}.customer_source.order_events")
     source_valid = quarantine_valid_frame(spec, source_raw)
     source_comparable = temp_relation(
