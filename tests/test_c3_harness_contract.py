@@ -15,8 +15,11 @@ def load_yaml(path: str) -> dict:
 def test_c3_bundle_pins_framework_artifact_and_current_serverless_environment() -> None:
     bundle = load_yaml("databricks.yml")
     resources = load_yaml("resources/c3.yml")["resources"]
+    contract = load_yaml("certification/c3-runtime.yml")
 
-    assert bundle["bundle"]["databricks_cli_version"] == ">= 0.294.0"
+    assert bundle["bundle"]["databricks_cli_version"] == ">= 1.3.0"
+    assert contract["bundle"]["required_cli_version"] == ">= 1.3.0"
+    assert contract["bundle"]["workflow_cli_version"] == "1.14.0"
     assert bundle["artifacts"]["framework"]["type"] == "whl"
     assert bundle["artifacts"]["framework"]["path"] == "./.framework"
     assert "c3" in bundle["targets"]
