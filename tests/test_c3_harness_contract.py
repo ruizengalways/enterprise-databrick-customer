@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CERTIFIED = {"P01", "P02", "P07", "P10", "P12"}
+EXACT_SHA = re.compile(r"^[0-9a-f]{40}$")
 
 
 def load_yaml(path: str) -> dict:
@@ -55,7 +57,10 @@ def test_c3_machine_contract_and_matrix_do_not_claim_unrun_workspace_evidence() 
     assert set(contract["patterns"]) == CERTIFIED
     assert contract["claims"]["local_green_implies_c3"] is False
     assert contract["claims"]["pipeline_success_without_verifier_implies_c3"] is False
-    assert lock["framework"]["ref"] == "20983d0960e82c8857f4b023f2331f6840149355"
+    assert contract["framework_subject"]["source"] == "certification/framework-lock.yml"
+    assert contract["framework_subject"]["require_exact_sha"] is True
+    assert lock["certification_policy"]["require_exact_framework_sha"] is True
+    assert EXACT_SHA.fullmatch(lock["framework"]["ref"])
 
     for pattern in CERTIFIED:
         assert matrix["patterns"][pattern]["databricks_runtime"] == "not_run"
