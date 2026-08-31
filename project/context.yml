@@ -1,0 +1,70 @@
+schema_version: 1
+kind: ecosystem_context
+project: enterprise-databricks-reference-ecosystem
+canonical_machine_context: ruizengalways/enterprise-databrick-customer/project/context.yml
+canonical_dynamic_state: ruizengalways/enterprise-databrick-customer/project/state.yml
+human_entrypoint: docs/PROJECT_CONTEXT.md
+
+machine_read_order:
+  - project/context.yml
+  - project/state.yml
+  - certification/framework-lock.yml
+  - certification/matrix.yml
+  - project/repository.yml
+
+repositories:
+  data-engineering-cheetsheet:
+    repository: ruizengalways/data-engineering-cheetsheet
+    role: semantic_source_of_truth
+    machine_contract: project/repository.yml
+    human_context: PROJECT_CONTEXT.md
+  enterprise-databrick-framework:
+    repository: ruizengalways/enterprise-databrick-framework
+    role: reusable_package
+    machine_contract: project/repository.yml
+    human_context: docs/PROJECT_CONTEXT.md
+  enterprise-databrick-customer:
+    repository: ruizengalways/enterprise-databrick-customer
+    role: reference_customer_and_certification_authority
+    machine_contract: project/repository.yml
+    human_context: docs/PROJECT_CONTEXT.md
+  enterprise-databrick-infra:
+    repository: ruizengalways/enterprise-databrick-infra
+    role: optional_platform_iac_reference
+    machine_contract: project/repository.yml
+    human_context: docs/PROJECT_CONTEXT.md
+
+dependency_direction:
+  - data-engineering-cheetsheet -> enterprise-databrick-framework
+  - enterprise-databrick-framework -> enterprise-databrick-customer
+  - enterprise-databrick-infra -> enterprise-databrick-customer
+  - enterprise-databrick-infra is optional for framework adoption
+
+truth_hierarchy:
+  repository_ownership: current ADRs and project/repository.yml
+  semantic_patterns: data-engineering-cheetsheet
+  executable_framework_behavior: enterprise-databrick-framework
+  certification_claims: enterprise-databrick-customer/certification
+  platform_reference: enterprise-databrick-infra
+
+certification_rules:
+  framework_ref_must_be_exact_sha: true
+  customer_source_sha_must_be_recorded: true
+  c0_c2_does_not_imply_runtime_certification: true
+  c3_requires_real_databricks_execution: true
+  c4_requires_failure_and_recovery_evidence: true
+  c5_requires_release_policy_evidence: true
+
+human_machine_boundary:
+  human_docs_glob: docs/**/*.md
+  machine_context_glob: project/**/*.yml
+  machine_certification_glob: certification/**/*.{yml,json}
+  rule: automation_must_not_parse_markdown_for_state_or_certification
+
+fast_changing_platform_topics_require_web_verification:
+  - declarative_automation_bundles
+  - databricks_authentication_and_workload_identity_federation
+  - lakeflow_pipeline_python_apis
+  - auto_cdc_apis
+  - unity_catalog_workspace_bindings
+  - runtime_and_serverless_capabilities
