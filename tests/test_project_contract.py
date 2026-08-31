@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+CERTIFIED = ("P01", "P02", "P07", "P10", "P12")
 
 
 def load_yaml(path: str) -> dict:
@@ -41,30 +42,41 @@ def test_machine_context_has_required_read_order_and_repo_roles() -> None:
     }
 
 
-def test_dynamic_state_tracks_subject_without_fabricating_new_evidence() -> None:
+def test_dynamic_state_distinguishes_current_subject_from_persisted_evidence() -> None:
     state = load_yaml("project/state.yml")
     lock = load_yaml("certification/framework-lock.yml")
     matrix = load_yaml("certification/matrix.yml")
 
     framework_sha = lock["framework"]["ref"]
-    assert state["certification_subject"]["framework_sha"] == framework_sha
-
+    framework_version = lock["framework"]["expected_package_version"]
+    subject = state["certification_subject"]
     verified = state["latest_verified_local_package_run"]
+
+    assert subject["framework_sha"] == framework_sha
+    assert subject["framework_package_version"] == framework_version
     assert verified["selection_policy"] == "latest_persisted_exact_sha_evidence"
     assert verified["status"] == "passed"
     assert len(verified["framework_sha"]) == 40
-    if verified["framework_sha"] != framework_sha:
+
+    if verified["framework_sha"] == framework_sha:
+        assert subject["package_integration_status"] == "passed"
+        for pattern in CERTIFIED:
+            assert matrix["patterns"][pattern]["metadata_contract"] == "passed"
+            assert matrix["patterns"][pattern]["package_integration"] == "passed"
+    else:
         assert verified["superseded_by_certification_subject"] is True
+        assert subject["package_integration_status"] == "not_run"
+        for pattern in CERTIFIED:
+            assert matrix["patterns"][pattern]["metadata_contract"] == "not_run"
+            assert matrix["patterns"][pattern]["package_integration"] == "not_run"
 
     assert state["runtime_certification"]["C3_real_databricks_runtime"] == "not_run"
     assert state["runtime_certification"]["C4_failure_recovery"] == "not_run"
-
-    for pattern in ("P01", "P02", "P07", "P10", "P12"):
-        assert matrix["patterns"][pattern]["package_integration"] == "passed"
+    for pattern in CERTIFIED:
         assert matrix["patterns"][pattern]["databricks_runtime"] == "not_run"
 
 
-def test_persisted_c2_evidence_matches_lock_matrix_and_state() -> None:
+def test_persisted_c2_evidence_is_internally_consistent_and_never_overclaimed() -> None:
     state = load_yaml("project/state.yml")
     lock = load_yaml("certification/framework-lock.yml")
     matrix = load_yaml("certification/matrix.yml")
@@ -72,22 +84,29 @@ def test_persisted_c2_evidence_matches_lock_matrix_and_state() -> None:
     evidence = load_yaml(latest["record"])
     verified = state["latest_verified_local_package_run"]
 
-    framework_sha = lock["framework"]["ref"]
+    current_framework_sha = lock["framework"]["ref"]
+    evidence_framework_sha = evidence["framework"]["sha"]
+
     assert evidence["status"] == "passed"
     assert evidence["evidence_level"] == "C2-package-integration"
-    assert evidence["framework"]["sha"] == framework_sha == latest["framework_sha"]
-    assert evidence["framework"]["package_version"] == lock["framework"]["expected_package_version"]
-    assert evidence["customer"]["sha"] == latest["customer_sha"]
+    assert evidence_framework_sha == latest["framework_sha"] == verified["framework_sha"]
+    assert evidence["customer"]["sha"] == latest["customer_sha"] == verified["customer_sha"]
     assert str(evidence["workflow"]["run_id"]) == str(latest["workflow_run_id"])
-    assert evidence["artifact"]["id"] == latest["artifact_id"]
-    assert evidence["artifact"]["digest"] == latest["artifact_digest"]
-
-    assert verified["evidence_record"] == latest["record"]
-    assert verified["framework_sha"] == framework_sha
-    assert verified["customer_sha"] == evidence["customer"]["sha"]
     assert str(verified["workflow_run_id"]) == str(evidence["workflow"]["run_id"])
-    assert verified["artifact_id"] == evidence["artifact"]["id"]
-    assert verified["artifact_digest"] == evidence["artifact"]["digest"]
+    assert evidence["artifact"]["id"] == latest["artifact_id"] == verified["artifact_id"]
+    assert evidence["artifact"]["digest"] == latest["artifact_digest"] == verified["artifact_digest"]
+    assert verified["evidence_record"] == latest["record"]
+
+    if evidence_framework_sha == current_framework_sha:
+        assert evidence["framework"]["package_version"] == lock["framework"]["expected_package_version"]
+        assert state["certification_subject"]["package_integration_status"] == "passed"
+        assert latest.get("superseded_by_certification_subject", False) is False
+        assert verified.get("superseded_by_certification_subject", False) is False
+    else:
+        assert latest["superseded_by_certification_subject"] is True
+        assert verified["superseded_by_certification_subject"] is True
+        assert state["certification_subject"]["package_integration_status"] == "not_run"
+        assert all(matrix["patterns"][pattern]["package_integration"] == "not_run" for pattern in CERTIFIED)
 
 
 def test_repository_contract_matches_customer_role() -> None:

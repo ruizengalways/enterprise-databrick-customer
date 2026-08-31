@@ -47,6 +47,8 @@ reconciliation:
     kind: row_count
   - name: country_code_count
     kind: key_count
+    options:
+      keys: [country_code]
 recovery:
   primary: snapshot_reload
   allowed: [snapshot_reload, full_rebuild, delta_restore]

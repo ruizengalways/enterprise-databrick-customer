@@ -16,10 +16,21 @@ bundle:
   workflow_cli_version: "1.14.0"
   serverless_environment_version: "4"
 execution:
-  stages: [seed_fixtures, run_reference_runtime, verify_outputs]
+  stages: [seed_fixtures, run_reference_runtime, reconcile_outputs, verify_outputs]
   require_full_refresh: true
   deterministic_fixture_root: fixtures
   workload_root: databricks
+reconciliation:
+  plan: certification/reconciliation-runtime.yml
+  require_cutoff_consistency: true
+  require_all_declared_rules_accounted_for: true
+  accepted_task_statuses: [passed, passed_with_declared_gaps]
+  declared_gap_is_not_passed: true
+  verifier_requires_matching_framework_and_customer_sha: true
+  detailed_workspace_audit_tables:
+    - platform_control.reconciliation_run
+    - platform_control.reconciliation_result
+    - certification_control.c3_reconciliation
 workspace_prerequisites:
   preprovisioned_catalog_variable: DATABRICKS_CERTIFICATION_CATALOG
   github_environment: databricks-certification
@@ -38,10 +49,15 @@ evidence_requirements:
   - bundle_target
   - bundle_summary
   - bundle_run_result
+  - reconciliation_verifier_gate
+  - reconciliation_plan_sha256
   - verifier_success
 claims:
   local_green_implies_c3: false
   bundle_deploy_success_implies_c3: false
   pipeline_success_without_verifier_implies_c3: false
+  reconciliation_task_success_without_verifier_implies_c3: false
+  declared_reconciliation_gap_is_not_reconciliation_pass: true
+  github_artifact_is_summary_evidence_not_duplicate_workspace_rule_audit: true
   c3_pass_requires_real_databricks_workspace: true
   recovery_is_separate_c4: true

@@ -2,8 +2,8 @@ version: 1
 legend:
   ready: fixture/contract exists and can be exercised
   planned: intentionally visible gap
-  not_run: harness/evidence has not executed at that level
-  passed: evidence exists for the exact framework lock; the certified customer SHA is recorded under latest_local_evidence and need not equal the bookkeeping commit that persists this matrix
+  not_run: harness/evidence has not executed at that level for the current framework lock
+  passed: evidence exists for the exact current framework lock; the certified customer SHA is recorded under latest_local_evidence and need not equal the bookkeeping commit that persists this matrix
 patterns:
   P01: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: passed, databricks_runtime: not_run, recovery: not_run}
   P02: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: passed, databricks_runtime: not_run, recovery: not_run}
@@ -33,9 +33,9 @@ capabilities:
   checkpoint_recovery_runtime: not_run
   immutable_release_evidence: planned
 latest_local_evidence:
-  record: certification/evidence/c2-framework-0.3.0-2026-08-31.yml
-  framework_sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
-  customer_sha: f3764d081c3ec5642ca63856388840822f4c5ed8
-  workflow_run_id: 33393470810
-  artifact_id: 9758381893
-  artifact_digest: sha256:d083505846a622d7d077eff35120c36229a8d2182dba7c7e91e74b0e0f604a48
+  record: certification/evidence/c2-framework-0.4.0-2026-09-01.yml
+  framework_sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
+  customer_sha: cc7696e90436d4c4161df763ed840c7366a9be6f
+  workflow_run_id: 33449049090
+  artifact_id: 9779075929
+  artifact_digest: sha256:0b84f2b42efbf910032462dbcbaec8f32f6f80cbba0059a88c3717f0ef3ad421

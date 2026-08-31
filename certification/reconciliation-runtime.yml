@@ -1,0 +1,44 @@
+version: 1
+level: C3
+kind: cutoff_consistent_reconciliation_plan
+status: not_run
+framework_subject:
+  source: certification/framework-lock.yml
+cutoff_consistency_required: true
+patterns:
+  P01:
+    dataset_id: reference.country
+    groups:
+      current_snapshot: [row_count, country_code_count]
+    declared_gaps: []
+  P02:
+    dataset_id: legacy.customer_history
+    groups:
+      current_snapshot: [snapshot_row_count, snapshot_key_count]
+      history_integrity: [one_current_row, no_overlap]
+    declared_gaps: []
+  P07:
+    dataset_id: crm.customer
+    groups:
+      current_state: [source_position, current_key_count, deleted_count]
+    declared_gaps: []
+  P10:
+    dataset_id: sales.customer_history
+    groups:
+      consumed_position: [consumed_position]
+      history_integrity: [one_current_row, no_overlapping_versions]
+    declared_gaps:
+      - rule_name: operation_counts
+        rule_kind: operation_count
+        reason: requires an application/audit relation that preserves applied operation semantics; the SCD2 target cannot safely reconstruct source operation counts
+  P12:
+    dataset_id: commerce.order_events
+    groups:
+      canonical_events: [offset_position, event_count]
+    declared_gaps: []
+claims:
+  every_declared_rule_must_be_accounted_for: true
+  declared_gap_is_not_passed: true
+  source_and_target_must_share_one_cutoff: true
+  static_plan_does_not_imply_databricks_runtime_pass: true
+  repair_and_failure_recovery_are_separate_c4: true

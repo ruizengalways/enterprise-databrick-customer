@@ -36,7 +36,8 @@ def test_ready_or_passed_contract_patterns_have_customer_metadata() -> None:
         assert f"pattern_id: {pattern}" in metadata_text
 
 
-def test_passed_c2_matrix_points_to_matching_evidence_record() -> None:
+def test_c2_matrix_never_promotes_superseded_evidence_to_current_passed_status() -> None:
+    lock = yaml.safe_load((ROOT / "certification/framework-lock.yml").read_text(encoding="utf-8"))
     matrix = yaml.safe_load((ROOT / "certification/matrix.yml").read_text(encoding="utf-8"))
     latest = matrix["latest_local_evidence"]
     evidence = yaml.safe_load((ROOT / latest["record"]).read_text(encoding="utf-8"))
@@ -52,6 +53,19 @@ def test_passed_c2_matrix_points_to_matching_evidence_record() -> None:
         for pattern, status in matrix["patterns"].items()
         if status.get("package_integration") == "passed"
     }
-    assert passed == set(evidence["scope"]["passed_patterns"])
-    assert all(matrix["patterns"][pattern]["databricks_runtime"] == "not_run" for pattern in passed)
-    assert all(matrix["patterns"][pattern]["recovery"] == "not_run" for pattern in passed)
+    evidence_patterns = set(evidence["scope"]["passed_patterns"])
+    current_framework_sha = lock["framework"]["ref"]
+
+    if evidence["framework"]["sha"] == current_framework_sha:
+        assert latest.get("superseded_by_certification_subject", False) is False
+        assert passed == evidence_patterns
+    else:
+        assert latest["superseded_by_certification_subject"] is True
+        assert passed == set()
+        assert all(
+            matrix["patterns"][pattern]["package_integration"] == "not_run"
+            for pattern in evidence_patterns
+        )
+
+    assert all(matrix["patterns"][pattern]["databricks_runtime"] == "not_run" for pattern in evidence_patterns)
+    assert all(matrix["patterns"][pattern]["recovery"] == "not_run" for pattern in evidence_patterns)
