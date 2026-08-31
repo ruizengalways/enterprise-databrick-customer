@@ -41,14 +41,19 @@ def test_machine_context_has_required_read_order_and_repo_roles() -> None:
     }
 
 
-def test_dynamic_state_matches_framework_lock_and_keeps_runtime_unclaimed() -> None:
+def test_dynamic_state_tracks_subject_without_fabricating_new_evidence() -> None:
     state = load_yaml("project/state.yml")
     lock = load_yaml("certification/framework-lock.yml")
     matrix = load_yaml("certification/matrix.yml")
 
     framework_sha = lock["framework"]["ref"]
     assert state["certification_subject"]["framework_sha"] == framework_sha
-    assert state["latest_verified_local_package_run"]["framework_sha"] == framework_sha
+
+    verified = state["latest_verified_local_package_run"]
+    assert verified["status"] == "passed"
+    assert len(verified["framework_sha"]) == 40
+    if verified["framework_sha"] != framework_sha:
+        assert verified["superseded_by_certification_subject"] is True
 
     assert state["runtime_certification"]["C3_real_databricks_runtime"] == "not_run"
     assert state["runtime_certification"]["C4_failure_recovery"] == "not_run"
