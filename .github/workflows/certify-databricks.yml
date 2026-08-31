@@ -34,7 +34,7 @@ jobs:
           cache: pip
 
       - name: Install certification tooling
-        run: pip install PyYAML wheel
+        run: pip install 'PyYAML>=6,<7' 'jsonschema>=4,<5' wheel
 
       - name: Read machine framework lock
         id: lock
@@ -117,6 +117,15 @@ jobs:
             --bundle-run certification-runtime/bundle-run.json \
             --cli-version certification-runtime/databricks-cli.json \
             --output certification-runtime/c3-evidence.json
+
+      - name: Validate evidence schema and exact identities
+        env:
+          FRAMEWORK_SHA: ${{ steps.lock.outputs.ref }}
+        run: |
+          python scripts/validate_c3_evidence.py \
+            --evidence certification-runtime/c3-evidence.json \
+            --expected-framework-sha "$FRAMEWORK_SHA" \
+            --expected-customer-sha "$CUSTOMER_SHA"
 
       - name: Upload immutable C3 evidence
         uses: actions/upload-artifact@v4
