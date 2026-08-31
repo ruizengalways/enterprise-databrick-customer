@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+RECONCILIATION_PLAN = ROOT / "certification/reconciliation-runtime.yml"
 
 
 def parse_args() -> argparse.Namespace:
@@ -32,6 +36,10 @@ def load_json(path: Path) -> Any:
         return json.load(handle)
 
 
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def main() -> None:
     args = parse_args()
     evidence = {
@@ -45,6 +53,11 @@ def main() -> None:
         "workflow_run_attempt": str(args.workflow_run_attempt),
         "bundle_target": "c3",
         "verifier_success": True,
+        "reconciliation_verifier_gate": True,
+        "reconciliation_plan": {
+            "path": "certification/reconciliation-runtime.yml",
+            "sha256": sha256(RECONCILIATION_PLAN),
+        },
         "claim_scope": "real_databricks_runtime_semantics",
         "recovery_certified": False,
         "bundle_summary": load_json(args.bundle_summary),
