@@ -1,0 +1,42 @@
+bundle:
+  name: enterprise-databrick-customer-certification
+  databricks_cli_version: ">= 0.294.0"
+  deployment:
+    lock:
+      enabled: true
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Pre-provisioned Unity Catalog catalog isolated for C3 certification.
+  framework_sha:
+    description: Exact framework Git SHA under certification.
+  customer_sha:
+    description: Exact customer Git SHA under certification.
+
+artifacts:
+  framework:
+    type: whl
+    path: ./.framework
+    build: python -m pip wheel . --no-deps --wheel-dir dist
+
+sync:
+  include:
+    - src/**
+    - data/**
+    - metadata/**
+    - expected/**
+    - certification/c3-runtime.yml
+  exclude:
+    - certification/evidence/**
+    - .framework/.git/**
+
+targets:
+  c3:
+    mode: development
+    default: true
+    presets:
+      jobs_max_concurrent_runs: 1
+      trigger_pause_status: PAUSED
