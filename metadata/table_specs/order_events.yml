@@ -1,0 +1,59 @@
+version: 1
+dataset_id: commerce.order_events
+pattern_id: P12
+source:
+  system: commerce_event_bus
+  object: order-events
+  owner: commerce
+semantics: business_events
+capture:
+  mechanism: kafka
+  execution: continuous
+  options:
+    topic: order-events
+    reference_source_relation: customer_source.order_events
+bootstrap:
+  mode: event_stream_from_position
+  handoff_position: configured retained Kafka offset or agreed business cutover event
+  overlap_idempotent: true
+delivery:
+  guarantee: at_least_once
+  idempotency_key_columns: [event_id]
+  retry_safe: true
+fidelity:
+  level: domain_event
+  caveat: Correctness is bounded by the producer event contract and retained event history.
+retention: {source_replay_window_hours: 168, required_recovery_window_hours: 72, alert_before_expiry_hours: 24}
+cursor:
+  type: kafka_offset
+  columns: [_kafka_partition, _kafka_offset]
+  boundary: provider_defined
+ordering: {columns: [_kafka_partition, _kafka_offset]}
+identity:
+  business_keys: [order_id]
+  event_identity_columns: [event_id]
+  delivery_identity_columns: [_kafka_topic, _kafka_partition, _kafka_offset]
+bronze: {contract: event_history, table: commerce_bronze.order_events, retention_days: 365}
+silver:
+  contract: canonical_events
+  table: commerce_silver.order_events
+  effective_time_column: event_time
+deletes: {strategy: none}
+quality:
+  quarantine_table: commerce_quarantine.order_events
+  rules:
+  - {name: event_id_not_null, expression: event_id IS NOT NULL, action: fail}
+  - {name: event_type_known, expression: "event_type IN ('ORDER_CREATED','ORDER_PAID','ORDER_CANCELLED','ORDER_SHIPPED')", action: quarantine}
+reconciliation:
+  enabled: true
+  cutoff_strategy: source_position
+  rules:
+  - {name: offset_position, kind: source_position}
+  - {name: event_count, kind: row_count}
+recovery:
+  primary: replay_bronze
+  allowed: [replay_bronze, replay_source, full_rebuild]
+  key_replay: true
+  time_window_replay: true
+sla: {freshness_minutes: 2, max_recovery_minutes: 60}
+tags: {domain: commerce, criticality: critical}

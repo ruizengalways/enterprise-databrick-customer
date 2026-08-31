@@ -1,0 +1,12 @@
+version: 1
+framework:
+  repository: ruizengalways/enterprise-databrick-framework
+  ref: bd133ad9ed381cb6abf4dc697afd5c0f4d118c81
+  expected_package_version: 0.2.0
+  note: package-only foundation merged 2026-08-31; update this exact SHA only through a reviewed certification change
+certification_policy:
+  require_exact_framework_sha: true
+  require_customer_sha_in_evidence: true
+  local_green_is_not_runtime_certification: true
+  require_databricks_runtime_for_release_claim: true
+  require_failure_recovery_for_full_certification: true

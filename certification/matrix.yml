@@ -1,0 +1,31 @@
+version: 1
+legend:
+  ready: fixture/contract exists and can be exercised
+  planned: intentionally visible gap
+  not_run: harness/evidence has not executed at that level
+  passed: evidence exists for the exact framework lock
+patterns:
+  P01: {fixture: ready, metadata_contract: ready, local_semantics: ready, databricks_runtime: not_run, recovery: not_run}
+  P02: {fixture: ready, metadata_contract: ready, local_semantics: ready, databricks_runtime: not_run, recovery: not_run}
+  P03: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+  P04: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+  P05: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+  P06: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+  P07: {fixture: ready, metadata_contract: ready, local_semantics: ready, databricks_runtime: not_run, recovery: not_run}
+  P08: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+  P09: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+  P10: {fixture: ready, metadata_contract: ready, local_semantics: ready, databricks_runtime: not_run, recovery: not_run}
+  P11: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+  P12: {fixture: ready, metadata_contract: ready, local_semantics: ready, databricks_runtime: not_run, recovery: not_run}
+  P13: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+  P14: {fixture: planned, metadata_contract: planned, local_semantics: planned, databricks_runtime: not_run, recovery: not_run}
+capabilities:
+  metadata_validation: ready
+  exact_sha_package_consumption: ready
+  deterministic_expected_outcomes: ready
+  dq_quarantine_runtime: not_run
+  reconciliation_runtime: not_run
+  schema_evolution_runtime: not_run
+  repair_replay_runtime: not_run
+  checkpoint_recovery_runtime: not_run
+  immutable_release_evidence: planned

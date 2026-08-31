@@ -1,0 +1,3 @@
+customer_id,name,segment,status
+C001,Alice Chen,SMB,ACTIVE
+C002,Ben Jones,ENTERPRISE,ACTIVE

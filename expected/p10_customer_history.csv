@@ -1,0 +1,5 @@
+customer_id,name,status,address,start_lsn,end_lsn,is_current,end_reason
+S001,Alice,ACTIVE,Sydney,100,102,false,changed
+S001,Alice,SUSPENDED,Sydney,102,103,false,changed
+S001,Alice,SUSPENDED,Parramatta,103,,true,
+S002,Ben,ACTIVE,Melbourne,101,104,false,cdc_delete

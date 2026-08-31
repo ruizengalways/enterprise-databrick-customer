@@ -1,0 +1,70 @@
+version: 1
+dataset_id: sales.customer_history
+pattern_id: P10
+source:
+  system: sales_postgres
+  object: public.customer
+  owner: sales
+  connection_ref: sales-cdc-certification
+semantics: change_feed
+capture:
+  mechanism: debezium
+  change_granularity: full_changes
+  execution: continuous
+  options:
+    topic: sales.public.customer
+    reference_source_relation: customer_source.sales_customer_cdc
+bootstrap:
+  mode: snapshot_at_source_position
+  handoff_position: consistent source snapshot at LSN P, followed by CDC strictly after/around P with idempotent overlap
+  overlap_idempotent: true
+delivery:
+  guarantee: at_least_once
+  idempotency_key_columns: [_kafka_topic, _kafka_partition, _kafka_offset]
+  retry_safe: true
+fidelity:
+  level: full_captured_change
+  caveat: Full captured database-change fidelity is bounded by source/Kafka retention and connector contract.
+retention: {source_replay_window_hours: 168, required_recovery_window_hours: 120, alert_before_expiry_hours: 24}
+cursor:
+  type: kafka_offset
+  columns: [_kafka_partition, _kafka_offset]
+  boundary: provider_defined
+ordering: {columns: [source_lsn, source_event_sequence]}
+identity:
+  business_keys: [customer_id]
+  source_version_columns: [source_lsn, source_event_sequence]
+  event_identity_columns: [_kafka_topic, _kafka_partition, _kafka_offset]
+  delivery_identity_columns: [_ingest_run_id]
+bronze:
+  contract: event_history
+  table: sales_bronze.customer_cdc
+  preserve_raw_payload: true
+  retention_days: 365
+silver:
+  contract: scd2
+  table: sales_silver.customer_history
+  tracked_columns: [name, status, address]
+  ignored_history_columns: [updated_at]
+deletes: {strategy: cdc_delete}
+quality:
+  quarantine_table: sales_quarantine.customer_cdc
+  rules:
+  - {name: key_not_null, expression: customer_id IS NOT NULL, action: fail}
+  - {name: known_operation, expression: "_operation IN ('c','r','u','d')", action: quarantine}
+reconciliation:
+  enabled: true
+  cutoff_strategy: source_position
+  rules:
+  - {name: consumed_position, kind: source_position}
+  - {name: operation_counts, kind: operation_count}
+  - {name: one_current_row, kind: scd2_current_uniqueness}
+  - {name: no_overlapping_versions, kind: scd2_no_overlap}
+recovery:
+  primary: replay_bronze
+  allowed: [replay_bronze, replay_source, full_rebuild, delta_restore]
+  key_replay: true
+  time_window_replay: true
+  requires_approval: true
+sla: {freshness_minutes: 5, max_recovery_minutes: 120}
+tags: {domain: sales, criticality: critical}

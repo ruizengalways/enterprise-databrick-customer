@@ -1,0 +1,56 @@
+version: 1
+dataset_id: reference.country
+pattern_id: P01
+source:
+  system: reference_master
+  object: dbo.country
+  owner: enterprise-data
+semantics: current_state
+capture:
+  mechanism: full_snapshot
+  execution: triggered
+  options:
+    reference_source_relation: customer_source.country_snapshot
+bootstrap:
+  mode: snapshot_only
+  notes: Each run is a complete authoritative snapshot.
+delivery:
+  guarantee: effectively_once
+  retry_safe: true
+fidelity:
+  level: current_only
+  caveat: Only the latest complete snapshot is authoritative; intermediate source changes are not retained.
+retention:
+  required_recovery_window_hours: 48
+  alert_before_expiry_hours: 12
+identity:
+  business_keys: []
+bronze:
+  contract: current_replica
+  table: reference_bronze.country
+  retention_days: 30
+silver:
+  contract: snapshot_replace
+  table: reference_silver.country
+deletes:
+  strategy: snapshot_absence
+quality:
+  rules:
+  - name: country_code_not_null
+    expression: country_code IS NOT NULL
+    action: fail
+reconciliation:
+  enabled: true
+  cutoff_strategy: snapshot_id
+  rules:
+  - name: row_count
+    kind: row_count
+  - name: country_code_count
+    kind: key_count
+recovery:
+  primary: snapshot_reload
+  allowed: [snapshot_reload, full_rebuild, delta_restore]
+  requires_approval: true
+sla:
+  freshness_minutes: 1440
+tags: {domain: reference, criticality: medium}
