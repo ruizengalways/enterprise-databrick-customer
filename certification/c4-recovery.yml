@@ -17,7 +17,7 @@ scenarios:
     status: ready
     category: dq_quarantine
     pattern: P07
-    fixture: data/failure_injection/crm_bad_email.csv
+    fixture: fixtures/p07_watermark_soft_delete/failures/bad_email.csv
     inject_into: customer_source.crm_customer_observations
     expected:
       pipeline_outcome: succeeds
@@ -30,7 +30,7 @@ scenarios:
     status: ready
     category: idempotency_and_ordering
     pattern: P10
-    fixture: data/failure_injection/debezium_duplicate_out_of_order.jsonl
+    fixture: fixtures/p10_full_cdc/failures/duplicate_out_of_order.jsonl
     inject_into: customer_source.sales_customer_cdc
     expected:
       pipeline_outcome: succeeds
@@ -43,7 +43,7 @@ scenarios:
     status: ready
     category: dedup_and_quarantine
     pattern: P12
-    fixture: data/failure_injection/order_duplicate_unknown.jsonl
+    fixture: fixtures/p12_business_events/failures/duplicate_unknown.jsonl
     inject_into: customer_source.order_events
     expected:
       pipeline_outcome: succeeds
@@ -61,9 +61,7 @@ scenarios:
       restart_from_same_deployed_sha: true
       no_missing_or_duplicate_semantic_rows: true
       verifier_matches_baseline: true
-    blocked_by:
-      - real_workspace_failure_controller
-      - checkpoint_evidence_capture
+    blocked_by: [real_workspace_failure_controller, checkpoint_evidence_capture]
 
   bronze_replay_repair:
     status: planned
@@ -74,9 +72,7 @@ scenarios:
       replay_from_retained_bronze: true
       restored_output_matches_baseline: true
       repair_request_and_run_are_auditable: true
-    blocked_by:
-      - framework_repair_executor_not_released
-      - approval_and_audit_runtime_not_released
+    blocked_by: [framework_repair_executor_not_released, approval_and_audit_runtime_not_released]
 
   duplicate_snapshot_key_failure:
     status: planned
@@ -87,6 +83,4 @@ scenarios:
       pipeline_outcome: fails
       no_false_success_evidence: true
       corrected_snapshot_then_rerun_converges: true
-    blocked_by:
-      - dedicated_duplicate_snapshot_fixture
-      - c4_workspace_runner
+    blocked_by: [dedicated_duplicate_snapshot_fixture, c4_workspace_runner]

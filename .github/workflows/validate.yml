@@ -82,24 +82,24 @@ jobs:
 
       - name: Compile Databricks and evidence Python sources
         working-directory: customer
-        run: python -m compileall -q src scripts tests
+        run: python -m compileall -q databricks scripts tests
 
       - name: Lint customer harness
         working-directory: customer
-        run: ruff check src scripts tests
+        run: ruff check databricks scripts tests
 
       - name: Run deterministic customer certification tests
         working-directory: customer
         run: pytest -q
 
-      - name: Build certification evidence
+      - name: Build C2 certification evidence
         working-directory: customer
         env:
           FRAMEWORK_SHA: ${{ steps.lock.outputs.ref }}
           WORKFLOW_RUN_ID: ${{ github.run_id }}
           WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
           WORKFLOW_EVENT: ${{ github.event_name }}
-        run: python scripts/build_certification_evidence.py --output certification-evidence.json
+        run: python scripts/build_c2_evidence.py --output certification-evidence.json
 
       - name: Upload certification evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

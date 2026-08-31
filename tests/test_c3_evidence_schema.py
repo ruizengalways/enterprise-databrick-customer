@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
+from jsonschema.exceptions import ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,5 +55,5 @@ def test_valid_c3_evidence_shape_is_accepted() -> None:
 def test_c3_schema_rejects_overclaims_or_ambiguous_identity(field: str, value: object) -> None:
     evidence = deepcopy(valid_evidence())
     evidence[field] = value
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         validator().validate(evidence)

@@ -14,14 +14,13 @@ def load_yaml(path: str) -> dict:
 
 def test_c3_bundle_pins_framework_artifact_and_current_serverless_environment() -> None:
     bundle = load_yaml("databricks.yml")
-    resources = load_yaml("resources/c3.yml")["resources"]
-    contract = load_yaml("certification/c3-runtime.yml")
+    resources = load_yaml("databricks/resources/c3-certification.yml")["resources"]
 
     assert bundle["bundle"]["databricks_cli_version"] == ">= 1.3.0"
-    assert contract["bundle"]["required_cli_version"] == ">= 1.3.0"
-    assert contract["bundle"]["workflow_cli_version"] == "1.14.0"
+    assert bundle["include"] == ["databricks/resources/*.yml"]
     assert bundle["artifacts"]["framework"]["type"] == "whl"
     assert bundle["artifacts"]["framework"]["path"] == "./.framework"
+    assert "fixtures/**" in bundle["sync"]["include"]
     assert "c3" in bundle["targets"]
 
     pipeline = resources["pipelines"]["c3_reference_runtime"]
@@ -34,7 +33,9 @@ def test_c3_bundle_pins_framework_artifact_and_current_serverless_environment() 
 
 
 def test_c3_job_enforces_seed_then_full_refresh_then_verifier() -> None:
-    job = load_yaml("resources/c3.yml")["resources"]["jobs"]["c3_certification"]
+    job = load_yaml("databricks/resources/c3-certification.yml")["resources"]["jobs"][
+        "c3_certification"
+    ]
     tasks = {task["task_key"]: task for task in job["tasks"]}
 
     assert set(tasks) == {"seed_fixtures", "run_reference_runtime", "verify_outputs"}
@@ -61,8 +62,9 @@ def test_c3_machine_contract_and_matrix_do_not_claim_unrun_workspace_evidence() 
 
 
 def test_pipeline_registration_and_verifier_cover_exact_same_pattern_set() -> None:
-    pipeline_source = (ROOT / "src/certification_pipeline/main.py").read_text(encoding="utf-8")
-    verifier_source = (ROOT / "src/certification/verify_outputs.py").read_text(encoding="utf-8")
+    pipeline_source = (ROOT / "databricks/pipelines/reference_runtime.py").read_text(encoding="utf-8")
+    verifier_source = (ROOT / "databricks/tasks/verify_outputs.py").read_text(encoding="utf-8")
+    seed_source = (ROOT / "databricks/tasks/seed_fixtures.py").read_text(encoding="utf-8")
 
     for pattern in CERTIFIED:
         assert f'"{pattern}"' in pipeline_source
@@ -70,4 +72,5 @@ def test_pipeline_registration_and_verifier_cover_exact_same_pattern_set() -> No
 
     assert "PatternRegistry(load_plugins=False)" in pipeline_source
     assert "snapshot_source_factory" in pipeline_source
+    assert "fixtures/p01_full_snapshot" in seed_source
     assert "c3_verification" in verifier_source

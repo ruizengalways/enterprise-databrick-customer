@@ -1,0 +1,32 @@
+schema_version: 1
+kind: repository_layout
+principle: directory_names_should_explain_ownership_without_reading_implementation_code
+root:
+  certification: machine-readable certification contracts, schemas, matrix, locks, and evidence
+  databricks: deployable workload code and Bundle resources owned by the reference customer
+  docs: human-readable Markdown only
+  fixtures: deterministic pattern-scoped input, expected, and failure datasets
+  metadata: customer-owned dataset specifications consumed by the framework
+  project: machine-readable ecosystem context, state, repository, and layout contracts
+  scripts: local and CI evidence utilities
+  tests: repository, fixture, certification, and contract tests
+  .github: CI and certification workflows
+required_databricks_subdirectories: [pipelines, tasks, resources]
+fixture_directory_pattern: fixtures/pNN_semantic_name/{input,expected,failures}
+pattern_fixture_directories:
+  P01: fixtures/p01_full_snapshot
+  P02: fixtures/p02_snapshot_history
+  P07: fixtures/p07_watermark_soft_delete
+  P10: fixtures/p10_full_cdc
+  P12: fixtures/p12_business_events
+forbidden_top_level_directories:
+  - data
+  - expected
+  - resources
+  - src
+rules:
+  human_docs_live_under_docs: true
+  machine_state_never_lives_in_markdown: true
+  databricks_workload_never_lives_under_generic_src: true
+  expected_outputs_live_next_to_their_pattern_inputs: true
+  failure_fixtures_live_next_to_their_baseline_pattern: true

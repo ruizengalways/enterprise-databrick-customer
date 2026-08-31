@@ -1,88 +1,61 @@
 # Learning Path
 
-This repository is designed so a new data engineer can learn the framework from concrete data rather than reading abstractions first.
+This repository lets a new data engineer learn the framework from concrete, self-contained scenarios before reading implementation internals.
 
-## Lab 0 — Understand the boundaries
+## Lab 0 — boundaries and directory map
 
-Read `docs/PROJECT_CONTEXT.md` and explain why:
+Read `docs/PROJECT_CONTEXT.md` and `docs/REPOSITORY_MAP.md`. Explain why the package, workload, platform Terraform, and semantic cheatsheet live in separate repositories.
 
-- framework code is a package;
-- Terraform is not required for normal dataset onboarding;
-- this customer repo owns metadata and expected results;
-- the cheatsheet owns semantic definitions;
-- a green local test is not the same as Databricks runtime certification.
+## Lab 1 — P01 full snapshot
 
-## Lab 1 — P01 full snapshot current state
+Open `fixtures/p01_full_snapshot/` and `metadata/table_specs/country.yml`.
 
-Files:
-
-- `metadata/table_specs/country.yml`
-- `data/reference/country/current.csv`
-- `expected/p01_country_current.csv`
-
-Questions:
-
-1. Why can the source omit a reliable primary key and still support snapshot replacement?
-2. What fidelity is lost between snapshots?
-3. What proves a successful reconciliation?
+Compare `input/country_current.csv` with `expected/country_current.csv`. Ask what fidelity is lost between snapshots and what reconciliation can prove.
 
 ## Lab 2 — P02 snapshot-derived SCD2
 
-Compare `snapshot_001.csv`, `snapshot_002.csv` and `snapshot_003.csv`.
+Open `fixtures/p02_snapshot_history/`.
 
-Identify:
-
-- a changed customer;
-- an inserted customer;
-- a customer deleted by snapshot absence;
-- why intermediate source changes between snapshots can never be reconstructed.
-
-Then compare with `expected/p02_customer_history.csv`.
+Compare the three input snapshots, find an insert/change/delete-by-absence, then explain every row in `expected/customer_history.csv`. Identify why changes between snapshots are unrecoverable.
 
 ## Lab 3 — P07 watermark + lookback + soft delete
 
-Study `data/crm/customer/observations.csv`.
+Open `fixtures/p07_watermark_soft_delete/`.
 
-Explain why Bronze is raw append even though Silver is current state, why overlap can redeliver data, and why `row_version` plus business key is different from `_ingest_run_id`.
+Explain why Bronze is raw append, why C001 is redelivered, why `row_version` differs from `_ingest_run_id`, and why a soft-delete row remains meaningful current state. Then inspect `failures/bad_email.csv` and decide quarantine versus hard fail.
 
-Use `data/failure_injection/crm_bad_email.csv` to discuss quarantine versus hard failure.
+## Lab 4 — P10 full CDC → SCD2
 
-## Lab 4 — P10 Debezium/full CDC -> SCD2
+Open `fixtures/p10_full_cdc/` and the P10 metadata.
 
-Study `data/sales/customer/debezium_normalized.jsonl` and the P10 metadata.
-
-Trace one customer through create/update/delete events. Distinguish:
-
-- Kafka delivery identity;
-- source LSN/event ordering;
-- business key;
-- SCD2 business history.
-
-Then inspect the duplicate/out-of-order failure fixture.
+Distinguish business key, Kafka delivery identity, source LSN/order, and SCD2 history. Then use `failures/duplicate_out_of_order.jsonl` to reason about idempotent convergence and tombstone retention.
 
 ## Lab 5 — P12 business events
 
-Use `data/commerce/order/events.jsonl` to build the canonical event sequence. Explain why a domain event is not the same thing as database CDC.
+Open `fixtures/p12_business_events/`.
 
-The failure fixture contains a duplicate event ID and an unknown event type; decide which should be deduplicated and which should be quarantined.
+Explain why domain events are not database CDC. Use `failures/duplicate_unknown.jsonl` to decide which record is deduplicated and which is quarantined.
 
-## Lab 6 — Certification thinking
+## Lab 6 — follow the real Databricks workload
 
-Read `docs/CERTIFICATION_MODEL.md` and `certification/matrix.yml`.
+Read, in order:
 
-For each of P01/P02/P07/P10/P12, write down what additional evidence is needed to move from C1/C2 to C3 and C4.
+1. `databricks.yml`
+2. `databricks/resources/c3-certification.yml`
+3. `databricks/tasks/seed_fixtures.py`
+4. `databricks/pipelines/reference_runtime.py`
+5. `databricks/tasks/verify_outputs.py`
 
-## Lab 7 — Recovery
+Trace the certification chain `seed → full refresh → exact verifier` and identify where reusable framework behavior ends and customer-owned adapter/transform behavior begins.
 
-Choose one failure injection and design:
+## Lab 7 — certification thinking
 
-1. detection;
-2. containment;
-3. repair request;
-4. replay/rebuild scope;
-5. consistent reconciliation cutoff;
-6. proof that processing can resume safely.
+Read `docs/CERTIFICATION_MODEL.md`, `certification/matrix.yml`, `certification/c3-runtime.yml`, and `certification/c4-recovery.yml`. Explain what extra evidence is necessary for C3 and C4 and why fixture existence is not recovery evidence.
 
-## Lab 8 — Onboard a new pattern/source
+## Lab 8 — recovery design
 
-Use the cheatsheet to classify a new source before writing code. If the semantics match an existing P01-P14 pattern, add customer metadata and a source adapter rather than creating a new core pattern. Only propose a new framework semantic pattern when the existing catalogue truly cannot represent the behavior.
+Choose one ready C4 failure scenario and design detection, containment, repair/replay scope, consistent reconciliation cutoff, and proof of safe resume. Compare your design with the `planned` checkpoint/repair gaps in `certification/c4-recovery.yml`.
+
+## Lab 9 — onboard a new source
+
+Classify the source against P01-P14 first. If it matches an existing pattern, add a new pattern-scoped fixture story, metadata contract, source adapter, and expected oracle. Only propose a new core semantic pattern when the catalogue truly cannot represent the behavior.
