@@ -8,7 +8,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import yaml
 from pyspark.sql import Row, SparkSession
+from pyspark.sql.functions import col
 
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
@@ -64,7 +66,11 @@ def canonical(rows: list[dict[str, Any]]) -> list[str]:
     return sorted(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in normalized)
 
 
-def compare(pattern: str, actual: list[dict[str, Any]], expected: list[dict[str, str]]) -> dict[str, Any]:
+def compare(
+    pattern: str,
+    actual: list[dict[str, Any]],
+    expected: list[dict[str, str]],
+) -> dict[str, Any]:
     actual_canonical = canonical(actual)
     expected_canonical = canonical(expected)
     passed = actual_canonical == expected_canonical
@@ -80,7 +86,11 @@ def compare(pattern: str, actual: list[dict[str, Any]], expected: list[dict[str,
     return result
 
 
-def rows_for_columns(spark: SparkSession, table: str, columns: list[str]) -> list[dict[str, Any]]:
+def rows_for_columns(
+    spark: SparkSession,
+    table: str,
+    columns: list[str],
+) -> list[dict[str, Any]]:
     return [row.asDict(recursive=True) for row in spark.table(table).select(*columns).collect()]
 
 
@@ -167,6 +177,63 @@ def p10_rows(spark: SparkSession, catalog: str) -> list[dict[str, Any]]:
     return output
 
 
+def expected_declared_gaps(root: Path) -> set[tuple[str, str, str]]:
+    plan = yaml.safe_load(
+        (root / "certification/reconciliation-runtime.yml").read_text(encoding="utf-8")
+    )
+    return {
+        (pattern, gap["rule_name"], gap["rule_kind"])
+        for pattern, entry in plan["patterns"].items()
+        for gap in entry.get("declared_gaps", [])
+    }
+
+
+def read_reconciliation_summary(
+    spark: SparkSession,
+    catalog: str,
+    root: Path,
+    *,
+    framework_sha: str,
+    customer_sha: str,
+) -> dict[str, Any]:
+    rows = (
+        spark.table(f"{catalog}.certification_control.c3_reconciliation")
+        .where(
+            (col("framework_sha") == framework_sha)
+            & (col("customer_sha") == customer_sha)
+            & (col("certification_level") == "C3")
+        )
+        .orderBy(col("recorded_at").desc())
+        .limit(1)
+        .collect()
+    )
+    if not rows:
+        raise AssertionError(
+            "C3 verifier requires a reconciliation summary for the exact framework/customer SHA"
+        )
+
+    record = rows[0].asDict(recursive=True)
+    summary = json.loads(record["summary_json"])
+    if record["status"] not in {"passed", "passed_with_declared_gaps"}:
+        raise AssertionError(f"C3 reconciliation status is not acceptable: {record['status']!r}")
+    if summary.get("framework_sha") != framework_sha or summary.get("customer_sha") != customer_sha:
+        raise AssertionError("C3 reconciliation summary identity does not match verifier identity")
+    if summary.get("status") != record["status"]:
+        raise AssertionError("C3 reconciliation table status and summary status disagree")
+
+    actual_gaps = {
+        (gap["pattern"], gap["rule_name"], gap["rule_kind"])
+        for gap in summary.get("declared_gaps", [])
+    }
+    if actual_gaps != expected_declared_gaps(root):
+        raise AssertionError(
+            f"C3 reconciliation declared-gap mismatch: actual={sorted(actual_gaps)}"
+        )
+    if any(pattern.get("status") == "failed" for pattern in summary.get("patterns", [])):
+        raise AssertionError("C3 reconciliation contains a failed executable pattern")
+    return summary
+
+
 def write_verification_record(
     spark: SparkSession,
     catalog: str,
@@ -199,6 +266,14 @@ def main() -> None:
     root = Path(args.bundle_root)
     spark = SparkSession.builder.getOrCreate()
     spark.conf.set("spark.sql.session.timeZone", "UTC")
+
+    reconciliation = read_reconciliation_summary(
+        spark,
+        catalog,
+        root,
+        framework_sha=framework_sha,
+        customer_sha=customer_sha,
+    )
 
     checks = [
         compare(
@@ -238,6 +313,7 @@ def main() -> None:
         "framework_sha": framework_sha,
         "customer_sha": customer_sha,
         "status": "failed" if failed else "passed",
+        "reconciliation": reconciliation,
         "patterns": checks,
     }
     write_verification_record(
@@ -254,7 +330,7 @@ def main() -> None:
         names = ", ".join(check["pattern"] for check in failed)
         raise AssertionError(f"C3 semantic verification failed for: {names}")
 
-    print("[SUCCESS] C3 actual outputs exactly match platform-neutral expected semantics")
+    print("[SUCCESS] C3 outputs and reconciliation evidence satisfy the exact reviewed contract")
 
 
 if __name__ == "__main__":
