@@ -1,18 +1,20 @@
 schema_version: 1
 kind: ecosystem_state
-last_architecture_audit_date: 2026-08-31
+last_architecture_audit_date: 2026-09-01
 state_is_dynamic: true
 
 repository_heads_at_last_audit:
   data-engineering-cheetsheet: 3423eacb042c6c55625f2ff1ec294b03bca4e30d
-  enterprise-databrick-framework: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
+  enterprise-databrick-framework: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
   enterprise-databrick-infra: bf7936de78553d3685b8edeaabfd9e32a5310536
-  enterprise-databrick-customer: 09a8dd33a7c048cd6d4083ad25665f082e2f35be
+  enterprise-databrick-customer: a6fdf7e92d99d18aeb9d518c9a179df306e2b903
 
 certification_subject:
   framework_lock_file: certification/framework-lock.yml
   matrix_file: certification/matrix.yml
-  framework_sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
+  framework_sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
+  framework_package_version: 0.4.0
+  package_integration_status: not_run
 
 latest_verified_local_package_run:
   selection_policy: latest_persisted_exact_sha_evidence
@@ -27,7 +29,8 @@ latest_verified_local_package_run:
   artifact_id: 9758381893
   artifact_digest: sha256:d083505846a622d7d077eff35120c36229a8d2182dba7c7e91e74b0e0f604a48
   artifact_expires_at: 2026-11-29T12:46:50Z
-  note: exact-SHA C2 evidence for the current framework lock; later bookkeeping commits do not rewrite the certified customer SHA
+  superseded_by_certification_subject: true
+  note: historical exact-SHA C2 evidence retained while framework 0.4.0 is independently recertified
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
@@ -53,9 +56,8 @@ planned_reference_patterns:
   - P14
 
 next_milestone:
-  name: merge_customer_harness_then_execute_real_c3
+  name: recertify_framework_0_4_then_wire_reconciliation_c3
   description: >-
-    Merge the C2-certified readable customer/C3 harness, then configure the approved GitHub OIDC
-    environment and isolated certification catalog, execute the seed-runtime-verifier chain in
-    Databricks, and collect immutable exact-SHA C3 evidence before any runtime status is promoted
-    to passed.
+    Independently certify framework 0.4.0 by exact SHA through customer C2, persist the resulting
+    evidence, then add a cutoff-consistent reconciliation stage to the C3 Databricks chain without
+    promoting C3 or C4 until a real workspace run and recovery evidence exist.
