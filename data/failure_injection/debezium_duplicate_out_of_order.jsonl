@@ -1,0 +1,2 @@
+{"customer_id":"S001","name":"Alice","status":"SUSPENDED","address":"Parramatta","updated_at":"2026-08-31T00:00:04Z","_operation":"u","source_lsn":103,"source_event_sequence":1,"_kafka_topic":"sales.public.customer","_kafka_partition":0,"_kafka_offset":13,"_ingest_run_id":"redelivery"}
+{"customer_id":"S001","name":"Alice","status":"ACTIVE","address":"Sydney","updated_at":"2026-08-31T00:00:03Z","_operation":"u","source_lsn":102,"source_event_sequence":1,"_kafka_topic":"sales.public.customer","_kafka_partition":0,"_kafka_offset":15,"_ingest_run_id":"late-delivery"}

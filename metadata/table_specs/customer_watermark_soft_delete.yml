@@ -1,0 +1,76 @@
+version: 1
+dataset_id: crm.customer
+pattern_id: P07
+source:
+  system: crm_sqlserver
+  object: dbo.customer
+  owner: crm
+  connection_ref: crm-sqlserver-certification
+semantics: current_state
+capture:
+  mechanism: watermark
+  execution: triggered
+  options:
+    schedule_class: 15m
+    reference_source_relation: customer_source.crm_customer_observations
+bootstrap:
+  mode: full_then_incremental
+  handoff_position: capture initial row_version upper bound, commit baseline, then read overlap around that bound
+  overlap_idempotent: true
+delivery:
+  guarantee: at_least_once
+  idempotency_key_columns: [customer_id, row_version]
+  retry_safe: true
+fidelity:
+  level: ingestion_observation
+  caveat: Raw Bronze preserves rows actually observed by extraction, not unseen intermediate source changes.
+retention: {required_recovery_window_hours: 168, alert_before_expiry_hours: 24}
+cursor:
+  type: rowversion
+  columns: [row_version]
+  lookback: 5000_versions
+ordering: {columns: [row_version]}
+identity:
+  business_keys: [customer_id]
+  source_version_columns: [row_version]
+  delivery_identity_columns: [_ingest_run_id]
+bronze:
+  contract: raw_append
+  table: crm_bronze.customer_observation
+  preserve_raw_payload: true
+  retention_days: 365
+silver: {contract: current_soft_delete, table: crm_silver.customer_current}
+deletes:
+  strategy: source_soft_delete
+  indicator_column: is_deleted
+  deleted_values: [true]
+quality:
+  quarantine_table: crm_quarantine.customer
+  rules:
+  - {name: customer_id_not_null, expression: customer_id IS NOT NULL, action: fail}
+  - {name: email_shape, expression: "email IS NULL OR email LIKE '%@%'", action: quarantine, threshold: 0.999}
+reconciliation:
+  enabled: true
+  cutoff_strategy: captured_upper_bound
+  rules:
+  - {name: source_position, kind: source_position}
+  - {name: current_key_count, kind: key_count}
+  - name: deleted_count
+    kind: aggregate
+    options: {expression: "sum(case when is_deleted then 1 else 0 end)"}
+schema_evolution:
+  add_nullable: allow
+  add_required: fail
+  drop: fail
+  rename: fail
+  widen_type: review
+  incompatible_type: fail
+  rescued_data: true
+recovery:
+  primary: replay_bronze
+  allowed: [replay_bronze, snapshot_reload, full_rebuild, delta_restore]
+  key_replay: true
+  time_window_replay: true
+  requires_approval: true
+sla: {freshness_minutes: 30, max_recovery_minutes: 240}
+tags: {domain: crm, criticality: high}

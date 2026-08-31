@@ -1,0 +1,4 @@
+{"event_id":"E001","order_id":"O100","event_type":"ORDER_CREATED","event_time":"2026-08-31T01:00:00Z","amount":120.0,"_kafka_topic":"order-events","_kafka_partition":0,"_kafka_offset":1}
+{"event_id":"E002","order_id":"O100","event_type":"ORDER_PAID","event_time":"2026-08-31T01:02:00Z","amount":120.0,"_kafka_topic":"order-events","_kafka_partition":0,"_kafka_offset":2}
+{"event_id":"E003","order_id":"O101","event_type":"ORDER_CREATED","event_time":"2026-08-31T01:03:00Z","amount":75.0,"_kafka_topic":"order-events","_kafka_partition":0,"_kafka_offset":3}
+{"event_id":"E004","order_id":"O100","event_type":"ORDER_SHIPPED","event_time":"2026-08-31T01:10:00Z","amount":120.0,"_kafka_topic":"order-events","_kafka_partition":0,"_kafka_offset":4}

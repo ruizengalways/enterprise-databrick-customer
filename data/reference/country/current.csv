@@ -1,0 +1,5 @@
+country_code,country_name,region,active
+AU,Australia,Oceania,true
+NZ,New Zealand,Oceania,true
+JP,Japan,Asia,true
+US,United States,North America,true

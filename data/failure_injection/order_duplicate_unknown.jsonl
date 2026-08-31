@@ -1,0 +1,2 @@
+{"event_id":"E002","order_id":"O100","event_type":"ORDER_PAID","event_time":"2026-08-31T01:02:00Z","amount":120.0,"_kafka_topic":"order-events","_kafka_partition":0,"_kafka_offset":20}
+{"event_id":"E999","order_id":"O999","event_type":"ORDER_TELEPORTED","event_time":"2026-08-31T01:20:00Z","amount":1.0,"_kafka_topic":"order-events","_kafka_partition":0,"_kafka_offset":21}

@@ -1,0 +1,4 @@
+customer_id,email,status,is_deleted,row_version
+C001,alice.new@example.com,ACTIVE,false,1003
+C002,ben@example.com,INACTIVE,true,1005
+C003,cara@example.com,ACTIVE,false,1004

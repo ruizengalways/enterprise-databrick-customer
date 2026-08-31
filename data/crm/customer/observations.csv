@@ -1,0 +1,7 @@
+customer_id,email,status,is_deleted,row_version,_ingest_run_id
+C001,alice@example.com,ACTIVE,false,1001,run-001
+C002,ben@example.com,ACTIVE,false,1002,run-001
+C001,alice@example.com,ACTIVE,false,1001,run-002
+C001,alice.new@example.com,ACTIVE,false,1003,run-002
+C003,cara@example.com,ACTIVE,false,1004,run-002
+C002,ben@example.com,INACTIVE,true,1005,run-003

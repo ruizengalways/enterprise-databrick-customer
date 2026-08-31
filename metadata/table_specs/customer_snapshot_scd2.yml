@@ -1,0 +1,52 @@
+version: 1
+dataset_id: legacy.customer_history
+pattern_id: P02
+source:
+  system: legacy_erp
+  object: customer_export
+  owner: legacy-erp
+semantics: current_state
+capture:
+  mechanism: full_snapshot
+  execution: triggered
+  options:
+    schedule_class: daily
+    reference_source_relation: customer_source.legacy_customer_snapshots
+    reference_snapshot_versions: [1, 2, 3]
+bootstrap:
+  mode: snapshot_only
+  notes: Every snapshot is a complete comparable source image; SCD2 changes are observed at snapshot cadence.
+delivery: {guarantee: effectively_once, retry_safe: true}
+fidelity:
+  level: snapshot_interval
+  caveat: History reflects differences between complete snapshots, not intermediate source changes.
+retention: {required_recovery_window_hours: 168, alert_before_expiry_hours: 24}
+cursor: {type: snapshot_id, columns: [_snapshot_id]}
+ordering: {columns: [_snapshot_id]}
+identity:
+  business_keys: [customer_id]
+  source_version_columns: [_snapshot_id]
+bronze: {contract: snapshot_history, table: legacy_bronze.customer_snapshot, retention_days: 730}
+silver:
+  contract: scd2
+  table: legacy_silver.customer_history
+  tracked_columns: [name, segment, status]
+deletes: {strategy: snapshot_absence}
+quality:
+  rules:
+  - {name: key_not_null, expression: customer_id IS NOT NULL, action: fail}
+reconciliation:
+  enabled: true
+  cutoff_strategy: snapshot_id
+  rules:
+  - {name: snapshot_row_count, kind: row_count}
+  - {name: snapshot_key_count, kind: key_count}
+  - {name: one_current_row, kind: scd2_current_uniqueness}
+  - {name: no_overlap, kind: scd2_no_overlap}
+recovery:
+  primary: replay_bronze
+  allowed: [replay_bronze, snapshot_reload, full_rebuild, delta_restore]
+  key_replay: true
+  requires_approval: true
+sla: {freshness_minutes: 1560, max_recovery_minutes: 480}
+tags: {domain: legacy, criticality: high}

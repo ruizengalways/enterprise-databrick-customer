@@ -1,0 +1,2 @@
+customer_id,email,status,is_deleted,row_version,_ingest_run_id
+C004,not-an-email,ACTIVE,false,1010,run-bad-email
