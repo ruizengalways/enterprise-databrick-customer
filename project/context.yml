@@ -10,6 +10,8 @@ machine_read_order:
   - project/state.yml
   - certification/framework-lock.yml
   - certification/matrix.yml
+  - certification/c3-runtime.yml
+  - certification/c4-recovery.yml
   - project/repository.yml
 
 repositories:
