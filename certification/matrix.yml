@@ -2,28 +2,28 @@ version: 1
 legend:
   ready: fixture/contract exists and can be exercised
   planned: intentionally visible gap
-  not_run: harness/evidence has not executed at that level
-  passed: evidence exists for the exact framework lock; the certified customer SHA is recorded under latest_local_evidence and need not equal the bookkeeping commit that persists this matrix
+  not_run: harness/evidence has not executed at that level for the current framework lock
+  passed: evidence exists for the exact current framework lock; the certified customer SHA is recorded under latest_local_evidence and need not equal the bookkeeping commit that persists this matrix
 patterns:
-  P01: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: passed, databricks_runtime: not_run, recovery: not_run}
-  P02: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: passed, databricks_runtime: not_run, recovery: not_run}
+  P01: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
+  P02: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P03: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P04: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P05: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P06: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
-  P07: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: passed, databricks_runtime: not_run, recovery: not_run}
+  P07: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P08: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P09: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
-  P10: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: passed, databricks_runtime: not_run, recovery: not_run}
+  P10: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P11: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
-  P12: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: passed, databricks_runtime: not_run, recovery: not_run}
+  P12: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P13: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P14: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
 capabilities:
-  metadata_validation: passed
-  exact_sha_package_consumption: passed
+  metadata_validation: not_run
+  exact_sha_package_consumption: not_run
   deterministic_expected_outcomes: passed
-  exact_sha_evidence_generation: passed
+  exact_sha_evidence_generation: ready
   c3_bundle_harness: ready
   c3_semantic_verifier: ready
   dq_quarantine_runtime: not_run
@@ -39,3 +39,4 @@ latest_local_evidence:
   workflow_run_id: 33393470810
   artifact_id: 9758381893
   artifact_digest: sha256:d083505846a622d7d077eff35120c36229a8d2182dba7c7e91e74b0e0f604a48
+  superseded_by_certification_subject: true
