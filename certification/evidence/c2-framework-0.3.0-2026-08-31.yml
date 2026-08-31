@@ -1,0 +1,38 @@
+schema_version: 1
+evidence_level: C2-package-integration
+status: passed
+recorded_at: 2026-08-31
+generated_at_utc: 2026-08-31T12:47:08.447873+00:00
+framework:
+  repository: ruizengalways/enterprise-databrick-framework
+  sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
+  package_version: 0.3.0
+customer:
+  repository: ruizengalways/enterprise-databrick-customer
+  sha: f3764d081c3ec5642ca63856388840822f4c5ed8
+workflow:
+  run_id: 33393470810
+  attempt: 1
+  event: pull_request
+artifact:
+  id: 9758381893
+  name: certification-evidence-f3764d081c3ec5642ca63856388840822f4c5ed8
+  digest: sha256:d083505846a622d7d077eff35120c36229a8d2182dba7c7e91e74b0e0f604a48
+  expires_at: 2026-11-29T12:46:50Z
+claims:
+  exact_framework_sha: passed
+  exact_customer_sha: passed
+  metadata_contract_validation: passed
+  python_compile_gate: passed
+  static_lint_gate: passed
+  deterministic_fixture_tests: passed
+  package_integration: passed
+  databricks_runtime: not_run
+  recovery_failure_injection: not_run
+scope:
+  passed_patterns: [P01, P02, P07, P10, P12]
+  planned_patterns: [P03, P04, P05, P06, P08, P09, P11, P13, P14]
+notes:
+  - This record is copied from the immutable GitHub Actions artifact for workflow run 33393470810; the artifact binds the exact customer and framework SHAs above.
+  - Framework 0.3.0 includes reconciliation v1, but this C2 run proves package consumption and deterministic customer semantics only; it does not claim real Databricks reconciliation runtime execution.
+  - C3 Databricks runtime and C4 failure/recovery remain not_run.
