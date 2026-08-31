@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/enterprise-databrick-customer/c3-evidence.schema.json",
+  "title": "Enterprise Databricks C3 runtime certification evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "certification_level",
+    "status",
+    "generated_at",
+    "customer_sha",
+    "framework_sha",
+    "workflow_run_id",
+    "workflow_run_attempt",
+    "bundle_target",
+    "verifier_success",
+    "claim_scope",
+    "recovery_certified",
+    "bundle_summary",
+    "bundle_run_result",
+    "databricks_cli"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "certification_level": {"const": "C3"},
+    "status": {"const": "passed"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "customer_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "framework_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "workflow_run_id": {"type": "string", "minLength": 1},
+    "workflow_run_attempt": {"type": "string", "minLength": 1},
+    "bundle_target": {"const": "c3"},
+    "verifier_success": {"const": true},
+    "claim_scope": {"const": "real_databricks_runtime_semantics"},
+    "recovery_certified": {"const": false},
+    "bundle_summary": {"type": "object"},
+    "bundle_run_result": {"type": "object"},
+    "databricks_cli": {"type": "object"}
+  }
+}
