@@ -1,0 +1,92 @@
+version: 1
+level: C4
+kind: failure_recovery_certification
+status: not_run
+framework_subject:
+  source: certification/framework-lock.yml
+  require_exact_sha: true
+precondition:
+  c3_runtime_must_pass_first: true
+claims:
+  fixture_exists_is_not_recovery_evidence: true
+  quarantine_success_is_not_repair_certification: true
+  retry_success_without_state_validation_is_not_recovery_evidence: true
+  recovery_pass_requires_real_databricks_workspace: true
+scenarios:
+  p07_bad_email_quarantine:
+    status: ready
+    category: dq_quarantine
+    pattern: P07
+    fixture: data/failure_injection/crm_bad_email.csv
+    inject_into: customer_source.crm_customer_observations
+    expected:
+      pipeline_outcome: succeeds
+      quarantine_contains_business_keys: [C004]
+      silver_excludes_business_keys: [C004]
+      preexisting_silver_state_unchanged: true
+    recovery_claim: none
+
+  p10_redelivery_and_out_of_order:
+    status: ready
+    category: idempotency_and_ordering
+    pattern: P10
+    fixture: data/failure_injection/debezium_duplicate_out_of_order.jsonl
+    inject_into: customer_source.sales_customer_cdc
+    expected:
+      pipeline_outcome: succeeds
+      current_state_converges_to_baseline: true
+      duplicate_redelivery_does_not_create_extra_history: true
+      late_older_event_does_not_replace_newer_state: true
+    recovery_claim: convergence_only
+
+  p12_duplicate_and_unknown_event:
+    status: ready
+    category: dedup_and_quarantine
+    pattern: P12
+    fixture: data/failure_injection/order_duplicate_unknown.jsonl
+    inject_into: customer_source.order_events
+    expected:
+      pipeline_outcome: succeeds
+      duplicate_event_id_not_duplicated_in_silver: E002
+      quarantine_contains_event_ids: [E999]
+      canonical_silver_excludes_event_ids: [E999]
+    recovery_claim: none
+
+  interrupted_runtime_resume:
+    status: planned
+    category: checkpoint_resume
+    patterns: [P07, P10, P12]
+    expected:
+      inject_failure: terminate_or_cancel_active_update_after_progress
+      restart_from_same_deployed_sha: true
+      no_missing_or_duplicate_semantic_rows: true
+      verifier_matches_baseline: true
+    blocked_by:
+      - real_workspace_failure_controller
+      - checkpoint_evidence_capture
+
+  bronze_replay_repair:
+    status: planned
+    category: repair_from_highest_trustworthy_layer
+    patterns: [P07, P10, P12]
+    expected:
+      corrupt_or_remove_silver: true
+      replay_from_retained_bronze: true
+      restored_output_matches_baseline: true
+      repair_request_and_run_are_auditable: true
+    blocked_by:
+      - framework_repair_executor_not_released
+      - approval_and_audit_runtime_not_released
+
+  duplicate_snapshot_key_failure:
+    status: planned
+    category: deterministic_failure_and_operator_recovery
+    pattern: P02
+    expected:
+      inject_duplicate_key_in_single_snapshot: true
+      pipeline_outcome: fails
+      no_false_success_evidence: true
+      corrected_snapshot_then_rerun_converges: true
+    blocked_by:
+      - dedicated_duplicate_snapshot_fixture
+      - c4_workspace_runner
