@@ -1,0 +1,49 @@
+version: 1
+level: C3
+kind: databricks_runtime_certification
+status: not_run
+framework_subject:
+  source: certification/framework-lock.yml
+  require_exact_sha: true
+customer_subject:
+  require_exact_sha: true
+patterns:
+  - P01
+  - P02
+  - P07
+  - P10
+  - P12
+bundle:
+  target: c3
+  pipeline_resource: c3_reference_runtime
+  job_resource: c3_certification
+  required_cli_version: ">= 0.294.0"
+  serverless_environment_version: "4"
+execution:
+  stages:
+    - seed_fixtures
+    - run_reference_runtime
+    - verify_outputs
+  require_full_refresh: true
+  deterministic_fixture_root: data
+  deterministic_expected_root: expected
+workspace_prerequisites:
+  preprovisioned_catalog_variable: DATABRICKS_CERTIFICATION_CATALOG
+  github_environment: databricks-certification
+  oidc_host_variable: DATABRICKS_HOST
+  oidc_client_id_variable: DATABRICKS_CLIENT_ID
+evidence_requirements:
+  - customer_sha
+  - framework_sha
+  - workflow_run_id
+  - workflow_run_attempt
+  - bundle_target
+  - bundle_summary
+  - bundle_run_result
+  - verifier_success
+claims:
+  local_green_implies_c3: false
+  bundle_deploy_success_implies_c3: false
+  pipeline_success_without_verifier_implies_c3: false
+  c3_pass_requires_real_databricks_workspace: true
+  recovery_is_separate_c4: true
