@@ -24,7 +24,8 @@ latest_verified_local_package_run:
   artifact_id: 9756371774
   artifact_digest: sha256:13a048dc4f4034ef4ddbb6e2ac0c801b0cf484443d0c90e0875669c04c626a78
   artifact_expires_at: 2026-11-29T11:41:15Z
-  note: remains the latest verified C2 evidence until the new 0.3.0 framework subject passes consumer CI
+  superseded_by_certification_subject: true
+  note: remains historical verified C2 evidence; framework 0.3.0 is the current subject and must produce its own exact-SHA evidence
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
