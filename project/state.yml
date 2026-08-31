@@ -14,23 +14,22 @@ certification_subject:
   matrix_file: certification/matrix.yml
   framework_sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
   framework_package_version: 0.4.0
-  package_integration_status: not_run
+  package_integration_status: passed
 
 latest_verified_local_package_run:
   selection_policy: latest_persisted_exact_sha_evidence
   level: C2
   status: passed
-  evidence_record: certification/evidence/c2-framework-0.3.0-2026-08-31.yml
-  customer_sha: f3764d081c3ec5642ca63856388840822f4c5ed8
-  framework_sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
-  framework_package_version: 0.3.0
-  workflow_run_id: 33393470810
+  evidence_record: certification/evidence/c2-framework-0.4.0-2026-09-01.yml
+  customer_sha: cc7696e90436d4c4161df763ed840c7366a9be6f
+  framework_sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
+  framework_package_version: 0.4.0
+  workflow_run_id: 33449049090
   workflow_run_attempt: 1
-  artifact_id: 9758381893
-  artifact_digest: sha256:d083505846a622d7d077eff35120c36229a8d2182dba7c7e91e74b0e0f604a48
-  artifact_expires_at: 2026-11-29T12:46:50Z
-  superseded_by_certification_subject: true
-  note: historical exact-SHA C2 evidence retained while framework 0.4.0 is independently recertified
+  artifact_id: 9779075929
+  artifact_digest: sha256:0b84f2b42efbf910032462dbcbaec8f32f6f80cbba0059a88c3717f0ef3ad421
+  artifact_expires_at: 2026-11-29T23:03:54Z
+  note: exact-SHA C2 evidence for framework 0.4.0; later bookkeeping commits do not rewrite the certified customer SHA
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
@@ -56,8 +55,8 @@ planned_reference_patterns:
   - P14
 
 next_milestone:
-  name: recertify_framework_0_4_then_wire_reconciliation_c3
+  name: wire_reconciliation_into_c3
   description: >-
-    Independently certify framework 0.4.0 by exact SHA through customer C2, persist the resulting
-    evidence, then add a cutoff-consistent reconciliation stage to the C3 Databricks chain without
-    promoting C3 or C4 until a real workspace run and recovery evidence exist.
+    Add a cutoff-consistent reconciliation stage to the C3 Databricks certification chain for the
+    fully executable rule sets, preserve P10 operation_count as an explicit unsupported gap, and
+    keep C3/C4 not_run until real workspace and recovery evidence exist.
