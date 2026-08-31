@@ -21,12 +21,25 @@ jobs:
           ref: ${{ env.CUSTOMER_SHA }}
           path: customer
 
-      - name: Read exact framework lock
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install YAML parser for machine contracts
+        run: pip install 'PyYAML>=6,<7'
+
+      - name: Read exact framework lock as YAML
         id: lock
         working-directory: customer
+        shell: bash
         run: |
           set -euo pipefail
-          ref=$(awk '/^  ref:/{print $2; exit}' certification/framework-lock.yml)
+          ref=$(python - <<'PY'
+          import yaml
+          with open('certification/framework-lock.yml', encoding='utf-8') as handle:
+              print(yaml.safe_load(handle)['framework']['ref'])
+          PY
+          )
           test ${#ref} -eq 40
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
 
@@ -37,29 +50,43 @@ jobs:
           ref: ${{ steps.lock.outputs.ref }}
           path: customer/.framework
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-          cache-dependency-path: customer/.framework/pyproject.toml
-
       - name: Install framework under test and test tools
         working-directory: customer
         run: |
           python -m pip install --upgrade pip
           pip install ./.framework
-          pip install pytest PyYAML
+          pip install 'pytest>=8,<10' 'ruff>=0.6,<1'
 
-      - name: Verify exact source checkouts
+      - name: Verify exact source checkouts and package version
         working-directory: customer
+        env:
+          FRAMEWORK_SHA: ${{ steps.lock.outputs.ref }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$CUSTOMER_SHA"
-          test "$(git -C .framework rev-parse HEAD)" = "${{ steps.lock.outputs.ref }}"
+          test "$(git -C .framework rev-parse HEAD)" = "$FRAMEWORK_SHA"
+          python - <<'PY'
+          import tomllib
+          import yaml
+          with open('certification/framework-lock.yml', encoding='utf-8') as handle:
+              lock = yaml.safe_load(handle)
+          with open('.framework/pyproject.toml', 'rb') as handle:
+              actual = tomllib.load(handle)['project']['version']
+          expected = lock['framework']['expected_package_version']
+          assert actual == expected, f'expected framework package {expected}, got {actual}'
+          PY
 
       - name: Validate customer metadata through framework CLI
         working-directory: customer
         run: edp validate metadata/table_specs
+
+      - name: Compile Databricks and evidence Python sources
+        working-directory: customer
+        run: python -m compileall -q src scripts tests
+
+      - name: Lint customer harness
+        working-directory: customer
+        run: ruff check src scripts tests
 
       - name: Run deterministic customer certification tests
         working-directory: customer
