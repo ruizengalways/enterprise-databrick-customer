@@ -15,17 +15,19 @@ certification_subject:
   framework_sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
 
 latest_verified_local_package_run:
+  selection_policy: latest_persisted_exact_sha_evidence
   level: C2
   status: passed
-  evidence_record: certification/evidence/c2-runtime-framework-2026-08-31.yml
-  customer_sha: 0d7f241061f5cad228dc016ee54e309c67e5a9a5
-  framework_sha: 20983d0960e82c8857f4b023f2331f6840149355
-  workflow_run_id: 33388129358
-  artifact_id: 9756371774
-  artifact_digest: sha256:13a048dc4f4034ef4ddbb6e2ac0c801b0cf484443d0c90e0875669c04c626a78
-  artifact_expires_at: 2026-11-29T11:41:15Z
-  superseded_by_certification_subject: true
-  note: remains historical verified C2 evidence; framework 0.3.0 is the current subject and must produce its own exact-SHA evidence
+  evidence_record: certification/evidence/c2-framework-0.3.0-2026-08-31.yml
+  customer_sha: f3764d081c3ec5642ca63856388840822f4c5ed8
+  framework_sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
+  framework_package_version: 0.3.0
+  workflow_run_id: 33393470810
+  workflow_run_attempt: 1
+  artifact_id: 9758381893
+  artifact_digest: sha256:d083505846a622d7d077eff35120c36229a8d2182dba7c7e91e74b0e0f604a48
+  artifact_expires_at: 2026-11-29T12:46:50Z
+  note: exact-SHA C2 evidence for the current framework lock; later bookkeeping commits do not rewrite the certified customer SHA
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
@@ -51,9 +53,9 @@ planned_reference_patterns:
   - P14
 
 next_milestone:
-  name: recertify_framework_0_3_then_execute_real_c3
+  name: merge_customer_harness_then_execute_real_c3
   description: >-
-    Re-certify the released framework 0.3.0 exact SHA through customer C2 package integration,
-    then merge the statically validated C3 harness, configure the approved GitHub OIDC environment
-    and isolated certification catalog, execute the seed-runtime-verifier chain in Databricks,
-    and collect immutable exact-SHA C3 evidence before any runtime status is promoted to passed.
+    Merge the C2-certified readable customer/C3 harness, then configure the approved GitHub OIDC
+    environment and isolated certification catalog, execute the seed-runtime-verifier chain in
+    Databricks, and collect immutable exact-SHA C3 evidence before any runtime status is promoted
+    to passed.
