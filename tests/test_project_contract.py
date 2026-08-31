@@ -50,6 +50,7 @@ def test_dynamic_state_tracks_subject_without_fabricating_new_evidence() -> None
     assert state["certification_subject"]["framework_sha"] == framework_sha
 
     verified = state["latest_verified_local_package_run"]
+    assert verified["selection_policy"] == "latest_persisted_exact_sha_evidence"
     assert verified["status"] == "passed"
     assert len(verified["framework_sha"]) == 40
     if verified["framework_sha"] != framework_sha:
@@ -61,6 +62,32 @@ def test_dynamic_state_tracks_subject_without_fabricating_new_evidence() -> None
     for pattern in ("P01", "P02", "P07", "P10", "P12"):
         assert matrix["patterns"][pattern]["package_integration"] == "passed"
         assert matrix["patterns"][pattern]["databricks_runtime"] == "not_run"
+
+
+def test_persisted_c2_evidence_matches_lock_matrix_and_state() -> None:
+    state = load_yaml("project/state.yml")
+    lock = load_yaml("certification/framework-lock.yml")
+    matrix = load_yaml("certification/matrix.yml")
+    latest = matrix["latest_local_evidence"]
+    evidence = load_yaml(latest["record"])
+    verified = state["latest_verified_local_package_run"]
+
+    framework_sha = lock["framework"]["ref"]
+    assert evidence["status"] == "passed"
+    assert evidence["evidence_level"] == "C2-package-integration"
+    assert evidence["framework"]["sha"] == framework_sha == latest["framework_sha"]
+    assert evidence["framework"]["package_version"] == lock["framework"]["expected_package_version"]
+    assert evidence["customer"]["sha"] == latest["customer_sha"]
+    assert str(evidence["workflow"]["run_id"]) == str(latest["workflow_run_id"])
+    assert evidence["artifact"]["id"] == latest["artifact_id"]
+    assert evidence["artifact"]["digest"] == latest["artifact_digest"]
+
+    assert verified["evidence_record"] == latest["record"]
+    assert verified["framework_sha"] == framework_sha
+    assert verified["customer_sha"] == evidence["customer"]["sha"]
+    assert str(verified["workflow_run_id"]) == str(evidence["workflow"]["run_id"])
+    assert verified["artifact_id"] == evidence["artifact"]["id"]
+    assert verified["artifact_digest"] == evidence["artifact"]["digest"]
 
 
 def test_repository_contract_matches_customer_role() -> None:
