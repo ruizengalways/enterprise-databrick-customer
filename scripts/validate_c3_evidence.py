@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -26,6 +27,10 @@ def load_json(path: Path) -> dict:
     return value
 
 
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def main() -> None:
     args = parse_args()
     evidence = load_json(args.evidence)
@@ -44,6 +49,11 @@ def main() -> None:
             "C3 evidence framework SHA does not match certification/framework-lock.yml"
         )
 
+    plan_path = ROOT / evidence["reconciliation_plan"]["path"]
+    actual_plan_digest = sha256(plan_path)
+    if evidence["reconciliation_plan"]["sha256"] != actual_plan_digest:
+        raise ValueError("C3 evidence reconciliation plan digest does not match reviewed source")
+
     if args.expected_framework_sha and evidence["framework_sha"] != args.expected_framework_sha:
         raise ValueError("C3 evidence framework SHA does not match workflow expectation")
     if args.expected_customer_sha and evidence["customer_sha"] != args.expected_customer_sha:
@@ -51,7 +61,8 @@ def main() -> None:
 
     print(
         "valid C3 evidence: "
-        f"customer={evidence['customer_sha']} framework={evidence['framework_sha']}"
+        f"customer={evidence['customer_sha']} framework={evidence['framework_sha']} "
+        f"reconciliation_plan={evidence['reconciliation_plan']['sha256']}"
     )
 
 
