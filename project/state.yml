@@ -5,14 +5,14 @@ state_is_dynamic: true
 
 repository_heads_at_last_audit:
   data-engineering-cheetsheet: 3423eacb042c6c55625f2ff1ec294b03bca4e30d
-  enterprise-databrick-framework: 20983d0960e82c8857f4b023f2331f6840149355
+  enterprise-databrick-framework: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
   enterprise-databrick-infra: bf7936de78553d3685b8edeaabfd9e32a5310536
   enterprise-databrick-customer: 09a8dd33a7c048cd6d4083ad25665f082e2f35be
 
 certification_subject:
   framework_lock_file: certification/framework-lock.yml
   matrix_file: certification/matrix.yml
-  framework_sha: 20983d0960e82c8857f4b023f2331f6840149355
+  framework_sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
 
 latest_verified_local_package_run:
   level: C2
@@ -24,6 +24,7 @@ latest_verified_local_package_run:
   artifact_id: 9756371774
   artifact_digest: sha256:13a048dc4f4034ef4ddbb6e2ac0c801b0cf484443d0c90e0875669c04c626a78
   artifact_expires_at: 2026-11-29T11:41:15Z
+  note: remains the latest verified C2 evidence until the new 0.3.0 framework subject passes consumer CI
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
@@ -49,8 +50,9 @@ planned_reference_patterns:
   - P14
 
 next_milestone:
-  name: execute_real_c3
+  name: recertify_framework_0_3_then_execute_real_c3
   description: >-
-    Merge the statically validated C3 harness, configure the approved GitHub OIDC environment
+    Re-certify the released framework 0.3.0 exact SHA through customer C2 package integration,
+    then merge the statically validated C3 harness, configure the approved GitHub OIDC environment
     and isolated certification catalog, execute the seed-runtime-verifier chain in Databricks,
     and collect immutable exact-SHA C3 evidence before any runtime status is promoted to passed.
