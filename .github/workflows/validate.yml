@@ -12,10 +12,13 @@ permissions:
 jobs:
   certify-local:
     runs-on: ubuntu-latest
+    env:
+      CUSTOMER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - name: Checkout customer
+      - name: Checkout exact customer source SHA
         uses: actions/checkout@v4
         with:
+          ref: ${{ env.CUSTOMER_SHA }}
           path: customer
 
       - name: Read exact framework lock
@@ -47,6 +50,13 @@ jobs:
           pip install ./.framework
           pip install pytest PyYAML
 
+      - name: Verify exact source checkouts
+        working-directory: customer
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CUSTOMER_SHA"
+          test "$(git -C .framework rev-parse HEAD)" = "${{ steps.lock.outputs.ref }}"
+
       - name: Validate customer metadata through framework CLI
         working-directory: customer
         run: edp validate metadata/table_specs
@@ -59,11 +69,14 @@ jobs:
         working-directory: customer
         env:
           FRAMEWORK_SHA: ${{ steps.lock.outputs.ref }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          WORKFLOW_EVENT: ${{ github.event_name }}
         run: python scripts/build_certification_evidence.py --output certification-evidence.json
 
       - name: Upload certification evidence
         uses: actions/upload-artifact@v4
         with:
-          name: certification-evidence-${{ github.sha }}
+          name: certification-evidence-${{ env.CUSTOMER_SHA }}
           path: customer/certification-evidence.json
           if-no-files-found: error

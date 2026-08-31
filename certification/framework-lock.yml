@@ -1,9 +1,9 @@
 version: 1
 framework:
   repository: ruizengalways/enterprise-databrick-framework
-  ref: bd133ad9ed381cb6abf4dc697afd5c0f4d118c81
+  ref: 6be809f7c106b8432494797405e47492354d96d6
   expected_package_version: 0.2.0
-  note: package-only foundation merged 2026-08-31; update this exact SHA only through a reviewed certification change
+  note: exact current framework main after the 2026-08-31 package-boundary documentation audit; change only through reviewed certification CI
 certification_policy:
   require_exact_framework_sha: true
   require_customer_sha_in_evidence: true
