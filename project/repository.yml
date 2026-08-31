@@ -1,0 +1,31 @@
+schema_version: 1
+kind: repository_contract
+repository: ruizengalways/enterprise-databrick-customer
+role: reference_customer
+purpose: >-
+  Independent consuming workload used for deterministic fixtures, learning labs,
+  certification evidence, and real Databricks acceptance tests of the reusable framework.
+human_entrypoint: README.md
+human_context: docs/PROJECT_CONTEXT.md
+machine_entrypoint: project/context.yml
+owns:
+  - customer_dataset_contracts
+  - source_fixtures
+  - independent_expected_outcomes
+  - learning_labs
+  - certification_harness
+  - certification_evidence
+  - workload_specific_databricks_resources
+must_not_own:
+  - reusable_framework_internals
+  - terraform_platform_foundation
+  - cloud_networking
+  - organisation_wide_identity_bootstrap
+  - technology_neutral_pattern_definitions
+depends_on:
+  - repository: ruizengalways/enterprise-databrick-framework
+    relationship: exact_sha_test_subject
+  - repository: ruizengalways/data-engineering-cheetsheet
+    relationship: semantic_source_of_truth
+  - repository: ruizengalways/enterprise-databrick-infra
+    relationship: optional_platform_reference

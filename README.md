@@ -2,15 +2,42 @@
 
 A deterministic **reference customer, learning lab, and certification repository** for [`enterprise-databrick-framework`](https://github.com/ruizengalways/enterprise-databrick-framework).
 
-This repository behaves like a real consuming data-engineering project. It owns customer-specific metadata, source fixtures, expected outcomes, learning exercises, and certification evidence. It does **not** own reusable framework internals or Databricks platform infrastructure.
+This repository behaves like a real consuming data-engineering project. It owns customer-specific metadata, source fixtures, expected outcomes, learning exercises, workload deployment definitions, and certification evidence. It does **not** own reusable framework internals or Databricks platform infrastructure.
 
 ## Why this repo exists
 
 It has three equal responsibilities:
 
 1. **Reference customer** — demonstrate how a company/workload repo consumes the reusable framework without copying framework source.
-2. **Certification suite** — prove a specific framework Git SHA against deterministic data and explicit expected outcomes. A framework version is never called certified without evidence.
-3. **Learning environment** — let a new engineer walk through realistic full snapshot, watermark, CDC, SCD2, soft-delete and business-event scenarios before touching production data.
+2. **Certification suite** — prove a specific framework Git SHA against deterministic data and explicit expected outcomes.
+3. **Learning environment** — let a new engineer walk through realistic full snapshot, watermark, CDC, SCD2, soft-delete, business-event, quality, reconciliation, and recovery scenarios before touching production data.
+
+## Human documentation vs machine contracts
+
+These are deliberately separate.
+
+### Human-readable
+
+Humans read Markdown only:
+
+- [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md) — architecture narrative and repository boundaries.
+- [`docs/CERTIFICATION_MODEL.md`](docs/CERTIFICATION_MODEL.md) — what C0-C5 mean.
+- [`docs/DATASETS.md`](docs/DATASETS.md) — fixture stories and expected business changes.
+- [`docs/LEARNING_PATH.md`](docs/LEARNING_PATH.md) — guided learning path.
+- [`docs/DOCUMENTATION_AUDIT.md`](docs/DOCUMENTATION_AUDIT.md) — audit history and rationale.
+
+### Machine-readable
+
+Automation and future context recovery use structured files only:
+
+- [`project/context.yml`](project/context.yml) — canonical four-repository architecture and truth hierarchy.
+- [`project/state.yml`](project/state.yml) — dynamic audited heads, current milestone, and latest verified evidence pointer.
+- [`project/repository.yml`](project/repository.yml) — this repository's ownership contract.
+- [`certification/framework-lock.yml`](certification/framework-lock.yml) — exact framework SHA under test.
+- [`certification/matrix.yml`](certification/matrix.yml) — machine-readable coverage/certification state.
+- [`certification/evidence/`](certification/evidence/) — persisted certification evidence records.
+
+**Automation must not parse Markdown to discover Git SHAs, certification status, repository ownership, or current project state.**
 
 ## Ecosystem
 
@@ -29,29 +56,28 @@ enterprise-databrick-customer      enterprise-databrick-infra
 reference workload + tests         optional platform/IaC baseline
 ```
 
-The customer repo may use `databricks.yml`/Lakeflow Jobs/Pipelines because a **workload repo owns its own deployable workload**. Terraform, workspaces, catalog topology, OIDC service-principal creation and organisation-wide platform policy remain outside this repo.
+The customer repo may own `databricks.yml`, Lakeflow Jobs, and Pipelines because a **workload repo owns its deployable workload**. Terraform, workspaces, catalog topology, OIDC service-principal creation, and organisation-wide platform policy remain outside this repo.
 
-## Current certification truth
+## Current certification meaning
 
-The initial baseline is intentionally conservative:
-
-- metadata/schema validation against an exact framework SHA: **active**
-- deterministic fixture and expected-outcome tests: **active**
-- real Databricks runtime execution: **not yet certified**
-- failure/recovery certification on Databricks: **not yet certified**
-- full P01-P14 runtime coverage: **not yet complete**
-
-See [`certification/matrix.yml`](certification/matrix.yml). Do not interpret a green local CI run as proof that every Databricks runtime path is production-certified.
+C0-C2 local/package evidence exists for the first reference scenarios. Real Databricks runtime execution and failure/recovery certification remain separate higher levels. The authoritative status is always [`certification/matrix.yml`](certification/matrix.yml), not prose in this README.
 
 ## Start here
 
-For a new conversation or a new engineer, read in this order:
+For a human engineer:
 
-1. [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md) — cross-repository context and non-negotiable decisions.
-2. [`docs/CERTIFICATION_MODEL.md`](docs/CERTIFICATION_MODEL.md) — what “certified” means.
-3. [`docs/DATASETS.md`](docs/DATASETS.md) — fixture semantics and expected changes.
-4. [`docs/LEARNING_PATH.md`](docs/LEARNING_PATH.md) — guided labs.
-5. [`certification/framework-lock.yml`](certification/framework-lock.yml) — exact framework version currently under test.
+1. read [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md);
+2. read [`docs/CERTIFICATION_MODEL.md`](docs/CERTIFICATION_MODEL.md);
+3. read [`docs/DATASETS.md`](docs/DATASETS.md);
+4. follow [`docs/LEARNING_PATH.md`](docs/LEARNING_PATH.md).
+
+For an automated agent or a new ChatGPT conversation:
+
+1. read [`project/context.yml`](project/context.yml);
+2. read [`project/state.yml`](project/state.yml);
+3. read [`certification/framework-lock.yml`](certification/framework-lock.yml);
+4. read [`certification/matrix.yml`](certification/matrix.yml);
+5. inspect current GitHub `main`, open PRs, and Actions before making a newer status claim.
 
 ## Local validation
 
@@ -66,19 +92,20 @@ pytest
 python scripts/build_certification_evidence.py --output certification-evidence.json
 ```
 
-GitHub Actions performs the same checks and uploads a machine-readable evidence artifact containing both the customer SHA and the exact framework SHA.
+GitHub Actions performs the same checks and uploads machine-readable evidence containing the exact customer source SHA and exact framework SHA.
 
 ## Repository map
 
 ```text
 .
+├── project/                    machine-readable ecosystem/repository context
 ├── metadata/table_specs/       customer-owned dataset contracts
 ├── data/                       deterministic source fixtures
-├── expected/                   business-level expected outcomes
-├── certification/              framework lock + coverage/certification matrix
-├── tests/                      fixture and semantic assertions
+├── expected/                   independent business-level expected outcomes
+├── certification/              framework lock + matrix + evidence
+├── tests/                      fixture, contract, and semantic assertions
 ├── scripts/                    evidence generation
-├── docs/                       context, learning and certification documentation
+├── docs/                       human-readable documentation only
 └── .github/workflows/          consumer-side certification CI
 ```
 
