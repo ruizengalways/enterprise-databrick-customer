@@ -25,6 +25,8 @@ resources:
         - environment_key: default
           spec:
             environment_version: "4"
+            dependencies:
+              - ../../.framework/dist/*.whl
       tasks:
         - task_key: seed_fixtures
           spark_python_task:
@@ -43,9 +45,25 @@ resources:
             pipeline_id: ${resources.pipelines.c3_reference_runtime.id}
             full_refresh: true
 
-        - task_key: verify_outputs
+        - task_key: reconcile_outputs
           depends_on:
             - task_key: run_reference_runtime
+          spark_python_task:
+            python_file: ../tasks/reconcile_outputs.py
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --bundle-root
+              - ${workspace.file_path}
+              - --framework-sha
+              - ${var.framework_sha}
+              - --customer-sha
+              - ${var.customer_sha}
+          environment_key: default
+
+        - task_key: verify_outputs
+          depends_on:
+            - task_key: reconcile_outputs
           spark_python_task:
             python_file: ../tasks/verify_outputs.py
             parameters:
