@@ -1,9 +1,9 @@
 version: 1
 framework:
   repository: ruizengalways/enterprise-databrick-framework
-  ref: 950f0e3752705ae82ea5e7114ae688f26179ff9f
-  expected_package_version: 0.2.0
-  note: final audited framework main after the 2026-08-31 package ownership documentation cleanup; change only through reviewed certification CI
+  ref: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
+  expected_package_version: 0.3.0
+  note: released main with P01/P02/P07/P10/P12 runtime handlers plus cutoff-consistent reconciliation v1; change only through reviewed certification CI
 certification_policy:
   require_exact_framework_sha: true
   require_customer_sha_in_evidence: true

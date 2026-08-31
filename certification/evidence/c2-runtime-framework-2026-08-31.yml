@@ -1,0 +1,36 @@
+schema_version: 1
+evidence_level: C2-package-integration
+status: passed
+recorded_at: 2026-08-31
+framework:
+  repository: ruizengalways/enterprise-databrick-framework
+  sha: 20983d0960e82c8857f4b023f2331f6840149355
+  package_version: 0.2.0
+customer:
+  repository: ruizengalways/enterprise-databrick-customer
+  sha: 0d7f241061f5cad228dc016ee54e309c67e5a9a5
+workflow:
+  run_id: 33388129358
+  event: pull_request
+artifact:
+  id: 9756371774
+  name: certification-evidence-0d7f241061f5cad228dc016ee54e309c67e5a9a5
+  digest: sha256:13a048dc4f4034ef4ddbb6e2ac0c801b0cf484443d0c90e0875669c04c626a78
+  expires_at: 2026-11-29T11:41:15Z
+claims:
+  exact_framework_sha: passed
+  exact_customer_sha: passed
+  metadata_contract_validation: passed
+  python_compile_gate: passed
+  static_lint_gate: passed
+  deterministic_fixture_tests: passed
+  package_integration: passed
+  databricks_runtime: not_run
+  recovery_failure_injection: not_run
+scope:
+  passed_patterns: [P01, P02, P07, P10, P12]
+  planned_patterns: [P03, P04, P05, P06, P08, P09, P11, P13, P14]
+notes:
+  - This record proves the released runtime-capable framework package can be consumed and locally certified by the independent customer repository.
+  - The C3 harness is statically validated by this run, but no real Databricks runtime claim is made until the dedicated C3 workflow succeeds in an approved workspace.
+  - Recovery and failure injection remain C4 work.

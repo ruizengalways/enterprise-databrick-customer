@@ -4,27 +4,34 @@ last_architecture_audit_date: 2026-08-31
 state_is_dynamic: true
 
 repository_heads_at_last_audit:
-  data-engineering-cheetsheet: bbf14c9ea4411e423f33f0c9f17b99daad7a3195
-  enterprise-databrick-framework: 950f0e3752705ae82ea5e7114ae688f26179ff9f
-  enterprise-databrick-infra: 3f00addafa4c433660d18d65b009d0174a38ee57
-  enterprise-databrick-customer: 64fe06d72045dfba335f192645b798d9f1fcb672
+  data-engineering-cheetsheet: 3423eacb042c6c55625f2ff1ec294b03bca4e30d
+  enterprise-databrick-framework: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
+  enterprise-databrick-infra: bf7936de78553d3685b8edeaabfd9e32a5310536
+  enterprise-databrick-customer: 09a8dd33a7c048cd6d4083ad25665f082e2f35be
 
 certification_subject:
   framework_lock_file: certification/framework-lock.yml
   matrix_file: certification/matrix.yml
-  framework_sha: 950f0e3752705ae82ea5e7114ae688f26179ff9f
+  framework_sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
 
 latest_verified_local_package_run:
+  selection_policy: latest_persisted_exact_sha_evidence
   level: C2
   status: passed
-  customer_sha: 64fe06d72045dfba335f192645b798d9f1fcb672
-  framework_sha: 950f0e3752705ae82ea5e7114ae688f26179ff9f
-  workflow_run_id: 33381440984
-  artifact_id: 9753895196
-  artifact_digest: sha256:d1d9958daedb2bf1e35de585ecdac4f6bbc52b864828f3cb71f68d39f6f20de1
+  evidence_record: certification/evidence/c2-framework-0.3.0-2026-08-31.yml
+  customer_sha: f3764d081c3ec5642ca63856388840822f4c5ed8
+  framework_sha: 3e9e9a563aa484a38cb0c91af4c91b4382819d1d
+  framework_package_version: 0.3.0
+  workflow_run_id: 33393470810
+  workflow_run_attempt: 1
+  artifact_id: 9758381893
+  artifact_digest: sha256:d083505846a622d7d077eff35120c36229a8d2182dba7c7e91e74b0e0f604a48
+  artifact_expires_at: 2026-11-29T12:46:50Z
+  note: exact-SHA C2 evidence for the current framework lock; later bookkeeping commits do not rewrite the certified customer SHA
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
+  C3_harness: ready
   C4_failure_recovery: not_run
   C5_release_certification: not_run
 
@@ -46,7 +53,9 @@ planned_reference_patterns:
   - P14
 
 next_milestone:
-  name: real_runtime_vertical_slices
+  name: merge_customer_harness_then_execute_real_c3
   description: >-
-    Release reusable built-in runtime registration for P01/P02/P07/P10/P12,
-    deploy those workloads from the customer repository, and collect C3 evidence in a real Databricks workspace.
+    Merge the C2-certified readable customer/C3 harness, then configure the approved GitHub OIDC
+    environment and isolated certification catalog, execute the seed-runtime-verifier chain in
+    Databricks, and collect immutable exact-SHA C3 evidence before any runtime status is promoted
+    to passed.

@@ -10,7 +10,10 @@ machine_read_order:
   - project/state.yml
   - certification/framework-lock.yml
   - certification/matrix.yml
+  - certification/c3-runtime.yml
+  - certification/c4-recovery.yml
   - project/repository.yml
+  - project/layout.yml
 
 repositories:
   data-engineering-cheetsheet:
@@ -27,6 +30,7 @@ repositories:
     repository: ruizengalways/enterprise-databrick-customer
     role: reference_customer_and_certification_authority
     machine_contract: project/repository.yml
+    layout_contract: project/layout.yml
     human_context: docs/PROJECT_CONTEXT.md
   enterprise-databrick-infra:
     repository: ruizengalways/enterprise-databrick-infra
@@ -42,6 +46,7 @@ dependency_direction:
 
 truth_hierarchy:
   repository_ownership: current ADRs and project/repository.yml
+  repository_layout: project/layout.yml
   semantic_patterns: data-engineering-cheetsheet
   executable_framework_behavior: enterprise-databrick-framework
   certification_claims: enterprise-databrick-customer/certification

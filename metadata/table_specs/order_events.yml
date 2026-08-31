@@ -12,6 +12,7 @@ capture:
   options:
     topic: order-events
     reference_source_relation: customer_source.order_events
+    dedup_watermark: 7 days
 bootstrap:
   mode: event_stream_from_position
   handoff_position: configured retained Kafka offset or agreed business cutover event
