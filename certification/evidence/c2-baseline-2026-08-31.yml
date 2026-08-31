@@ -1,0 +1,33 @@
+schema_version: 1
+evidence_level: C2-package-integration
+status: passed
+recorded_at: 2026-08-31
+framework:
+  repository: ruizengalways/enterprise-databrick-framework
+  sha: 950f0e3752705ae82ea5e7114ae688f26179ff9f
+  package_version: 0.2.0
+customer:
+  repository: ruizengalways/enterprise-databrick-customer
+  sha: 7e04b526b0075baaa55eb0e62d7bb942ed5a7591
+workflow:
+  run_id: 33381265620
+  event: push
+artifact:
+  id: 9753832042
+  name: certification-evidence-7e04b526b0075baaa55eb0e62d7bb942ed5a7591
+  digest: sha256:c148ccafb019acfcd5ba50db9a5096cd1c87f33f798a9cd1e743946c9c8b2505
+  expires_at: 2026-11-29T10:11:26Z
+claims:
+  exact_framework_sha: passed
+  exact_customer_sha: passed
+  metadata_contract_validation: passed
+  deterministic_fixture_tests: passed
+  package_integration: passed
+  databricks_runtime: not_run
+  recovery_failure_injection: not_run
+scope:
+  passed_patterns: [P01, P02, P07, P10, P12]
+  planned_patterns: [P03, P04, P05, P06, P08, P09, P11, P13, P14]
+notes:
+  - This C2 record proves local/package integration only; it is not real Databricks runtime certification.
+  - C3 and C4 remain not_run until execution and recovery evidence exists in an approved Databricks environment.
