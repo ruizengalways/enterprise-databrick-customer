@@ -1,6 +1,6 @@
 bundle:
   name: enterprise-databrick-customer-certification
-  databricks_cli_version: ">= 0.294.0"
+  databricks_cli_version: ">= 1.3.0"
   deployment:
     lock:
       enabled: true
@@ -29,6 +29,7 @@ sync:
     - metadata/**
     - expected/**
     - certification/c3-runtime.yml
+    - certification/c4-recovery.yml
   exclude:
     - certification/evidence/**
     - .framework/.git/**
