@@ -20,6 +20,11 @@ bundle:
   required_cli_version: ">= 1.3.0"
   workflow_cli_version: "1.14.0"
   serverless_environment_version: "4"
+workflow_supply_chain:
+  actions_checkout_sha: 11d5960a326750d5838078e36cf38b85af677262
+  actions_setup_python_sha: a26af69be951a213d495a4c3e4e4022e16d87065
+  databricks_setup_cli_sha: 8821c27b1fe57472264eeb6e50c1f31d69552f28
+  actions_upload_artifact_sha: ea165f8d65b6e75b540449e92b4886f43607fa02
 execution:
   stages:
     - seed_fixtures
