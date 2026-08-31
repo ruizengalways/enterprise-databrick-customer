@@ -1,0 +1,134 @@
+name: Certify Databricks runtime C3
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: databricks-c3-certification
+  cancel-in-progress: false
+
+jobs:
+  certify-c3:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: databricks-certification
+    env:
+      CUSTOMER_SHA: ${{ github.sha }}
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+      BUNDLE_VAR_catalog: ${{ vars.DATABRICKS_CERTIFICATION_CATALOG }}
+    steps:
+      - name: Checkout exact customer SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CUSTOMER_SHA }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install certification tooling
+        run: pip install PyYAML wheel
+
+      - name: Read machine framework lock
+        id: lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref=$(python - <<'PY'
+          import yaml
+          with open('certification/framework-lock.yml', encoding='utf-8') as handle:
+              print(yaml.safe_load(handle)['framework']['ref'])
+          PY
+          )
+          test ${#ref} -eq 40
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "BUNDLE_VAR_framework_sha=$ref" >> "$GITHUB_ENV"
+          echo "BUNDLE_VAR_customer_sha=$CUSTOMER_SHA" >> "$GITHUB_ENV"
+
+      - name: Checkout exact framework SHA
+        uses: actions/checkout@v4
+        with:
+          repository: ruizengalways/enterprise-databrick-framework
+          ref: ${{ steps.lock.outputs.ref }}
+          path: .framework
+
+      - name: Verify certification identities and package version
+        env:
+          FRAMEWORK_SHA: ${{ steps.lock.outputs.ref }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CUSTOMER_SHA"
+          test "$(git -C .framework rev-parse HEAD)" = "$FRAMEWORK_SHA"
+          python - <<'PY'
+          import tomllib
+          import yaml
+          with open('certification/framework-lock.yml', encoding='utf-8') as handle:
+              lock = yaml.safe_load(handle)
+          with open('.framework/pyproject.toml', 'rb') as handle:
+              project = tomllib.load(handle)['project']
+          expected = lock['framework']['expected_package_version']
+          actual = project['version']
+          if actual != expected:
+              raise SystemExit(f'framework package version mismatch: expected {expected}, got {actual}')
+          PY
+
+      - name: Setup pinned Databricks CLI
+        uses: databricks/setup-cli@v1.10.0
+        with:
+          version: 1.14.0
+
+      - name: Record Databricks CLI identity
+        run: |
+          mkdir -p certification-runtime
+          databricks version --output json > certification-runtime/databricks-cli.json
+
+      - name: Validate bundle
+        run: databricks bundle validate -t c3 -o json > certification-runtime/bundle-validate.json
+
+      - name: Create replayable deployment plan
+        run: databricks bundle plan -t c3 -o json > certification-runtime/bundle-plan.json
+
+      - name: Deploy exact reviewed plan
+        run: databricks bundle deploy -t c3 --plan certification-runtime/bundle-plan.json
+
+      - name: Capture deployed bundle summary
+        run: databricks bundle summary -t c3 -o json > certification-runtime/bundle-summary.json
+
+      - name: Run seed-runtime-verifier certification chain
+        run: databricks bundle run -t c3 -o json c3_certification > certification-runtime/bundle-run.json
+
+      - name: Build C3 evidence only after verifier success
+        env:
+          FRAMEWORK_SHA: ${{ steps.lock.outputs.ref }}
+        run: |
+          python scripts/build_c3_evidence.py \
+            --framework-sha "$FRAMEWORK_SHA" \
+            --customer-sha "$CUSTOMER_SHA" \
+            --workflow-run-id "${{ github.run_id }}" \
+            --workflow-run-attempt "${{ github.run_attempt }}" \
+            --bundle-summary certification-runtime/bundle-summary.json \
+            --bundle-run certification-runtime/bundle-run.json \
+            --cli-version certification-runtime/databricks-cli.json \
+            --output certification-runtime/c3-evidence.json
+
+      - name: Upload immutable C3 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: c3-evidence-${{ env.CUSTOMER_SHA }}
+          path: certification-runtime/c3-evidence.json
+          if-no-files-found: error
+
+      - name: Upload deployment diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: c3-diagnostics-${{ env.CUSTOMER_SHA }}
+          path: certification-runtime/
+          if-no-files-found: warn
