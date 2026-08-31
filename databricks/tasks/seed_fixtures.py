@@ -84,7 +84,7 @@ def write_table(spark: SparkSession, table: str, rows: list[dict[str, Any]]) -> 
 
 
 def country_rows(root: Path) -> list[dict[str, Any]]:
-    rows = read_csv(root / "data/reference/country/current.csv")
+    rows = read_csv(root / "fixtures/p01_full_snapshot/input/country_current.csv")
     return [
         {
             "country_code": row["country_code"],
@@ -99,7 +99,7 @@ def country_rows(root: Path) -> list[dict[str, Any]]:
 def legacy_snapshot_rows(root: Path) -> list[dict[str, Any]]:
     output: list[dict[str, Any]] = []
     for snapshot_id in (1, 2, 3):
-        path = root / f"data/legacy/customer/snapshot_{snapshot_id:03d}.csv"
+        path = root / f"fixtures/p02_snapshot_history/input/snapshot_{snapshot_id:03d}.csv"
         for row in read_csv(path):
             output.append(
                 {
@@ -114,7 +114,7 @@ def legacy_snapshot_rows(root: Path) -> list[dict[str, Any]]:
 
 
 def crm_observation_rows(root: Path) -> list[dict[str, Any]]:
-    rows = read_csv(root / "data/crm/customer/observations.csv")
+    rows = read_csv(root / "fixtures/p07_watermark_soft_delete/input/observations.csv")
     return [
         {
             "customer_id": row["customer_id"],
@@ -129,7 +129,7 @@ def crm_observation_rows(root: Path) -> list[dict[str, Any]]:
 
 
 def sales_cdc_rows(root: Path) -> list[dict[str, Any]]:
-    rows = read_jsonl(root / "data/sales/customer/debezium_normalized.jsonl")
+    rows = read_jsonl(root / "fixtures/p10_full_cdc/input/debezium_normalized.jsonl")
     for row in rows:
         row["source_lsn"] = int(row["source_lsn"])
         row["source_event_sequence"] = int(row["source_event_sequence"])
@@ -140,7 +140,7 @@ def sales_cdc_rows(root: Path) -> list[dict[str, Any]]:
 
 
 def order_event_rows(root: Path) -> list[dict[str, Any]]:
-    rows = read_jsonl(root / "data/commerce/order/events.jsonl")
+    rows = read_jsonl(root / "fixtures/p12_business_events/input/events.jsonl")
     for row in rows:
         row["event_time"] = parse_timestamp(str(row["event_time"]))
         row["amount"] = float(row["amount"])
@@ -160,15 +160,12 @@ def main() -> None:
 
     write_table(spark, f"{catalog}.customer_source.country_snapshot", country_rows(root))
 
-    # P02's retained snapshot-history Bronze is owned by the workload/capture adapter.
-    # The framework consumes it through the snapshot callback rather than discovering
-    # customer fixture files itself.
+    # P02's retained snapshot-history Bronze belongs to the workload/capture adapter.
     write_table(
         spark,
         f"{catalog}.legacy_bronze.customer_snapshot",
         legacy_snapshot_rows(root),
     )
-
     write_table(
         spark,
         f"{catalog}.customer_source.crm_customer_observations",

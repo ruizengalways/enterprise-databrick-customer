@@ -5,14 +5,14 @@ resources:
       catalog: ${var.catalog}
       schema: default
       serverless: true
-      root_path: ../src/certification_pipeline
+      root_path: ../pipelines
       libraries:
         - file:
-            path: ../src/certification_pipeline/main.py
+            path: ../pipelines/reference_runtime.py
       environment:
         environment_version: "4"
         dependencies:
-          - ../.framework/dist/*.whl
+          - ../../.framework/dist/*.whl
       configuration:
         edp.catalog: ${var.catalog}
         edp.bundle_root: ${workspace.file_path}
@@ -28,7 +28,7 @@ resources:
       tasks:
         - task_key: seed_fixtures
           spark_python_task:
-            python_file: ../src/certification/seed_fixtures.py
+            python_file: ../tasks/seed_fixtures.py
             parameters:
               - --catalog
               - ${var.catalog}
@@ -47,7 +47,7 @@ resources:
           depends_on:
             - task_key: run_reference_runtime
           spark_python_task:
-            python_file: ../src/certification/verify_outputs.py
+            python_file: ../tasks/verify_outputs.py
             parameters:
               - --catalog
               - ${var.catalog}

@@ -6,7 +6,7 @@ bundle:
       enabled: true
 
 include:
-  - resources/*.yml
+  - databricks/resources/*.yml
 
 variables:
   catalog:
@@ -24,12 +24,10 @@ artifacts:
 
 sync:
   include:
-    - src/**
-    - data/**
+    - databricks/**
+    - fixtures/**
     - metadata/**
-    - expected/**
     - certification/c3-runtime.yml
-    - certification/c4-recovery.yml
   exclude:
     - certification/evidence/**
     - .framework/.git/**

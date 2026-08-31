@@ -12,6 +12,14 @@ from pyspark.sql import Row, SparkSession
 
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
+EXPECTED = {
+    "P01": "fixtures/p01_full_snapshot/expected/country_current.csv",
+    "P02": "fixtures/p02_snapshot_history/expected/customer_history.csv",
+    "P07": "fixtures/p07_watermark_soft_delete/expected/customer_current.csv",
+    "P10": "fixtures/p10_full_cdc/expected/customer_history.csv",
+    "P12": "fixtures/p12_business_events/expected/order_events.csv",
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -34,8 +42,8 @@ def require_sha(value: str, label: str) -> str:
     return value
 
 
-def read_expected(root: Path, name: str) -> list[dict[str, str]]:
-    with (root / "expected" / name).open(encoding="utf-8", newline="") as handle:
+def read_expected(root: Path, pattern: str) -> list[dict[str, str]]:
+    with (root / EXPECTED[pattern]).open(encoding="utf-8", newline="") as handle:
         return [dict(row) for row in csv.DictReader(handle)]
 
 
@@ -47,8 +55,7 @@ def as_text(value: Any) -> str:
     if isinstance(value, datetime):
         if value.tzinfo is None:
             return value.isoformat(timespec="seconds") + "Z"
-        utc = value.astimezone(timezone.utc)
-        return utc.isoformat(timespec="seconds").replace("+00:00", "Z")
+        return value.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     return str(value)
 
 
@@ -57,12 +64,12 @@ def canonical(rows: list[dict[str, Any]]) -> list[str]:
     return sorted(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in normalized)
 
 
-def compare(name: str, actual: list[dict[str, Any]], expected: list[dict[str, str]]) -> dict[str, Any]:
+def compare(pattern: str, actual: list[dict[str, Any]], expected: list[dict[str, str]]) -> dict[str, Any]:
     actual_canonical = canonical(actual)
     expected_canonical = canonical(expected)
     passed = actual_canonical == expected_canonical
     result: dict[str, Any] = {
-        "pattern": name,
+        "pattern": pattern,
         "status": "passed" if passed else "failed",
         "actual_count": len(actual),
         "expected_count": len(expected),
@@ -98,7 +105,6 @@ def p02_rows(spark: SparkSession, catalog: str) -> list[dict[str, Any]]:
         .select("customer_id", "_snapshot_id")
         .collect()
     }
-
     output: list[dict[str, Any]] = []
     for row in spark.table(f"{catalog}.legacy_silver.customer_history").collect():
         data = row.asDict(recursive=True)
@@ -134,7 +140,6 @@ def p10_rows(spark: SparkSession, catalog: str) -> list[dict[str, Any]]:
         .select("customer_id", "source_lsn")
         .collect()
     }
-
     output: list[dict[str, Any]] = []
     for row in spark.table(f"{catalog}.sales_silver.customer_history").collect():
         data = row.asDict(recursive=True)
@@ -203,13 +208,9 @@ def main() -> None:
                 f"{catalog}.reference_silver.country",
                 ["country_code", "country_name", "region", "active"],
             ),
-            read_expected(root, "p01_country_current.csv"),
+            read_expected(root, "P01"),
         ),
-        compare(
-            "P02",
-            p02_rows(spark, catalog),
-            read_expected(root, "p02_customer_history.csv"),
-        ),
+        compare("P02", p02_rows(spark, catalog), read_expected(root, "P02")),
         compare(
             "P07",
             rows_for_columns(
@@ -217,13 +218,9 @@ def main() -> None:
                 f"{catalog}.crm_silver.customer_current",
                 ["customer_id", "email", "status", "is_deleted", "row_version"],
             ),
-            read_expected(root, "p07_customer_current.csv"),
+            read_expected(root, "P07"),
         ),
-        compare(
-            "P10",
-            p10_rows(spark, catalog),
-            read_expected(root, "p10_customer_history.csv"),
-        ),
+        compare("P10", p10_rows(spark, catalog), read_expected(root, "P10")),
         compare(
             "P12",
             rows_for_columns(
@@ -231,7 +228,7 @@ def main() -> None:
                 f"{catalog}.commerce_silver.order_events",
                 ["event_id", "order_id", "event_type", "event_time", "amount"],
             ),
-            read_expected(root, "p12_order_events.csv"),
+            read_expected(root, "P12"),
         ),
     ]
 
