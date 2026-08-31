@@ -1,0 +1,38 @@
+schema_version: 1
+evidence_level: C2-package-integration
+status: passed
+recorded_at: 2026-09-01
+generated_at_utc: 2026-08-31T23:04:12.330530+00:00
+framework:
+  repository: ruizengalways/enterprise-databrick-framework
+  sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
+  package_version: 0.4.0
+customer:
+  repository: ruizengalways/enterprise-databrick-customer
+  sha: cc7696e90436d4c4161df763ed840c7366a9be6f
+workflow:
+  run_id: 33449049090
+  run_attempt: 1
+  event: pull_request
+artifact:
+  id: 9779075929
+  name: certification-evidence-cc7696e90436d4c4161df763ed840c7366a9be6f
+  digest: sha256:0b84f2b42efbf910032462dbcbaec8f32f6f80cbba0059a88c3717f0ef3ad421
+  expires_at: 2026-11-29T23:03:54Z
+claims:
+  exact_framework_sha: passed
+  exact_customer_sha: passed
+  metadata_contract_validation: passed
+  python_compile_gate: passed
+  static_lint_gate: passed
+  deterministic_fixture_tests: passed
+  package_integration: passed
+  databricks_runtime: not_run
+  recovery_failure_injection: not_run
+scope:
+  passed_patterns: [P01, P02, P07, P10, P12]
+  planned_patterns: [P03, P04, P05, P06, P08, P09, P11, P13, P14]
+notes:
+  - This record proves released framework 0.4.0 can be consumed by exact SHA and locally certified by the independent customer repository.
+  - Reconciliation v2 metadata validation is included in this package-integration evidence, but no Spark/Databricks reconciliation runtime claim is made here.
+  - C3 real Databricks runtime and C4 recovery/failure injection remain not_run.
