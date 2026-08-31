@@ -5,14 +5,14 @@ state_is_dynamic: true
 
 repository_heads_at_last_audit:
   data-engineering-cheetsheet: bbf14c9ea4411e423f33f0c9f17b99daad7a3195
-  enterprise-databrick-framework: 950f0e3752705ae82ea5e7114ae688f26179ff9f
+  enterprise-databrick-framework: 20983d0960e82c8857f4b023f2331f6840149355
   enterprise-databrick-infra: 3f00addafa4c433660d18d65b009d0174a38ee57
-  enterprise-databrick-customer: 64fe06d72045dfba335f192645b798d9f1fcb672
+  enterprise-databrick-customer: 09a8dd33a7c048cd6d4083ad25665f082e2f35be
 
 certification_subject:
   framework_lock_file: certification/framework-lock.yml
   matrix_file: certification/matrix.yml
-  framework_sha: 950f0e3752705ae82ea5e7114ae688f26179ff9f
+  framework_sha: 20983d0960e82c8857f4b023f2331f6840149355
 
 latest_verified_local_package_run:
   level: C2
@@ -22,6 +22,7 @@ latest_verified_local_package_run:
   workflow_run_id: 33381440984
   artifact_id: 9753895196
   artifact_digest: sha256:d1d9958daedb2bf1e35de585ecdac4f6bbc52b864828f3cb71f68d39f6f20de1
+  superseded_by_certification_subject: true
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
@@ -48,5 +49,5 @@ planned_reference_patterns:
 next_milestone:
   name: real_runtime_vertical_slices
   description: >-
-    Release reusable built-in runtime registration for P01/P02/P07/P10/P12,
+    Re-certify the released P01/P02/P07/P10/P12 runtime package at C2,
     deploy those workloads from the customer repository, and collect C3 evidence in a real Databricks workspace.
