@@ -68,7 +68,9 @@ reconciliation:
   cutoff_strategy: source_position
   rules:
   - {name: consumed_position, kind: source_position}
-  - {name: operation_counts, kind: operation_count}
+  - name: operation_counts
+    kind: operation_count
+    options: {operation_column: _operation}
   - {name: one_current_row, kind: scd2_current_uniqueness}
   - {name: no_overlapping_versions, kind: scd2_no_overlap}
 recovery:

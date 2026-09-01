@@ -33,9 +33,9 @@ capabilities:
   checkpoint_recovery_runtime: not_run
   immutable_release_evidence: planned
 latest_local_evidence:
-  record: certification/evidence/c2-framework-0.4.0-2026-09-01.yml
-  framework_sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
-  customer_sha: cc7696e90436d4c4161df763ed840c7366a9be6f
-  workflow_run_id: 33449049090
-  artifact_id: 9779075929
-  artifact_digest: sha256:0b84f2b42efbf910032462dbcbaec8f32f6f80cbba0059a88c3717f0ef3ad421
+  record: certification/evidence/c2-framework-0.5.0-2026-09-01.yml
+  framework_sha: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
+  customer_sha: a68730aa16b4010f67c0f70caafbe184b5f5c305
+  workflow_run_id: 33457976942
+  artifact_id: 9782121568
+  artifact_digest: sha256:ffc58e9892cf1c84a64fd1598eea9fb64dde7f0eaf88cae6685e08bdb01978cf

@@ -310,6 +310,14 @@ def run_p10(
     ordering = list(spec.ordering.columns) if spec.ordering is not None else []
     cutoff = max_sequence(source, ordering)
     observed = max_sequence(bronze, ordering)
+    source_application_feed = temp_relation(
+        quarantine_valid_frame(spec, source),
+        "c3_recon_p10_source_application_feed",
+    )
+    bronze_application_feed = temp_relation(
+        quarantine_valid_frame(spec, bronze),
+        "c3_recon_p10_bronze_application_feed",
+    )
     target = f"{catalog}.sales_silver.customer_history"
     return [
         run_group(
@@ -323,6 +331,17 @@ def run_p10(
             cutoff_type="source_sequence",
             cutoff_value=cutoff,
             observed_target_position=observed,
+        ),
+        run_group(
+            spark,
+            catalog,
+            spec,
+            group_name="application_feed_parity",
+            rule_names=groups["application_feed_parity"],
+            source_relation=source_application_feed,
+            target_relation=bronze_application_feed,
+            cutoff_type="source_sequence",
+            cutoff_value=cutoff,
         ),
         run_group(
             spark,

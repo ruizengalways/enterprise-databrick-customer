@@ -5,31 +5,31 @@ state_is_dynamic: true
 
 repository_heads_at_last_audit:
   data-engineering-cheetsheet: 3423eacb042c6c55625f2ff1ec294b03bca4e30d
-  enterprise-databrick-framework: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
+  enterprise-databrick-framework: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
   enterprise-databrick-infra: bf7936de78553d3685b8edeaabfd9e32a5310536
-  enterprise-databrick-customer: a6fdf7e92d99d18aeb9d518c9a179df306e2b903
+  enterprise-databrick-customer: c30dc4884e11a420d9fdfa93f361055b74313232
 
 certification_subject:
   framework_lock_file: certification/framework-lock.yml
   matrix_file: certification/matrix.yml
-  framework_sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
-  framework_package_version: 0.4.0
+  framework_sha: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
+  framework_package_version: 0.5.0
   package_integration_status: passed
 
 latest_verified_local_package_run:
   selection_policy: latest_persisted_exact_sha_evidence
   level: C2
   status: passed
-  evidence_record: certification/evidence/c2-framework-0.4.0-2026-09-01.yml
-  customer_sha: cc7696e90436d4c4161df763ed840c7366a9be6f
-  framework_sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
-  framework_package_version: 0.4.0
-  workflow_run_id: 33449049090
+  evidence_record: certification/evidence/c2-framework-0.5.0-2026-09-01.yml
+  customer_sha: a68730aa16b4010f67c0f70caafbe184b5f5c305
+  framework_sha: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
+  framework_package_version: 0.5.0
+  workflow_run_id: 33457976942
   workflow_run_attempt: 1
-  artifact_id: 9779075929
-  artifact_digest: sha256:0b84f2b42efbf910032462dbcbaec8f32f6f80cbba0059a88c3717f0ef3ad421
-  artifact_expires_at: 2026-11-29T23:03:54Z
-  note: exact-SHA C2 evidence for framework 0.4.0; later bookkeeping commits do not rewrite the certified customer SHA
+  artifact_id: 9782121568
+  artifact_digest: sha256:ffc58e9892cf1c84a64fd1598eea9fb64dde7f0eaf88cae6685e08bdb01978cf
+  artifact_expires_at: 2026-11-30T01:14:49Z
+  note: exact-SHA C2 evidence for released framework 0.5.0; later bookkeeping commits do not rewrite the certified customer SHA
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
@@ -55,8 +55,8 @@ planned_reference_patterns:
   - P14
 
 next_milestone:
-  name: wire_reconciliation_into_c3
+  name: execute_zero_gap_c3_reconciliation
   description: >-
-    Add a cutoff-consistent reconciliation stage to the C3 Databricks certification chain for the
-    fully executable rule sets, preserve P10 operation_count as an explicit unsupported gap, and
-    keep C3/C4 not_run until real workspace and recovery evidence exist.
+    Run the real Databricks C3 chain against the exact framework 0.5.0/customer subject when
+    explicitly authorized, exercising cutoff-consistent reconciliation with P10 operation_count as
+    application-feed parity and no declared reconciliation gaps. C4 recovery remains separate.
