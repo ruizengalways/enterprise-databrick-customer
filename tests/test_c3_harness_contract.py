@@ -114,8 +114,23 @@ def test_reconciliation_plan_accounts_for_every_declared_rule_exactly_once() -> 
             assert gap["reason"].strip()
 
     p10 = plan["patterns"]["P10"]
-    assert p10["groups"]["application_feed_parity"] == ["operation_counts"]
+    assert p10["groups"]["application_feed_parity"] == [
+        "application_feed_rows",
+        "application_feed_identity_count",
+        "application_feed_identity_presence",
+        "operation_counts",
+    ]
     assert p10["declared_gaps"] == []
+
+    p10_spec = specs["P10"]
+    p10_rules = {rule["name"]: rule for rule in p10_spec["reconciliation"]["rules"]}
+    identity = ["_kafka_topic", "_kafka_partition", "_kafka_offset"]
+    assert p10_rules["application_feed_rows"]["kind"] == "row_count"
+    assert p10_rules["application_feed_identity_count"]["kind"] == "key_count"
+    assert p10_rules["application_feed_identity_count"]["options"]["keys"] == identity
+    assert p10_rules["application_feed_identity_presence"]["kind"] == "pk_presence"
+    assert p10_rules["application_feed_identity_presence"]["options"]["keys"] == identity
+    assert p10_rules["operation_counts"]["options"]["operation_column"] == "_operation"
 
 
 def test_pipeline_reconciliation_and_verifier_cover_exact_same_pattern_set() -> None:
