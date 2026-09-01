@@ -26,7 +26,11 @@ patterns:
     dataset_id: sales.customer_history
     groups:
       consumed_position: [consumed_position]
-      application_feed_parity: [operation_counts]
+      application_feed_parity:
+        - application_feed_rows
+        - application_feed_identity_count
+        - application_feed_identity_presence
+        - operation_counts
       history_integrity: [one_current_row, no_overlapping_versions]
     declared_gaps: []
   P12:
@@ -38,6 +42,7 @@ claims:
   every_declared_rule_must_be_accounted_for: true
   declared_gap_is_not_passed: true
   source_and_target_must_share_one_cutoff: true
+  application_feed_parity_checks_rows_identity_presence_and_operation_distribution: true
   operation_count_compares_same_stage_relations_not_scd2_inference: true
   static_plan_does_not_imply_databricks_runtime_pass: true
   repair_and_failure_recovery_are_separate_c4: true
