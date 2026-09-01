@@ -68,6 +68,13 @@ reconciliation:
   cutoff_strategy: source_position
   rules:
   - {name: consumed_position, kind: source_position}
+  - {name: application_feed_rows, kind: row_count}
+  - name: application_feed_identity_count
+    kind: key_count
+    options: {keys: [_kafka_topic, _kafka_partition, _kafka_offset]}
+  - name: application_feed_identity_presence
+    kind: pk_presence
+    options: {keys: [_kafka_topic, _kafka_partition, _kafka_offset]}
   - name: operation_counts
     kind: operation_count
     options: {operation_column: _operation}

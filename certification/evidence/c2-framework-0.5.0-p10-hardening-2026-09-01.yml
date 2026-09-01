@@ -1,0 +1,38 @@
+schema_version: 1
+evidence_level: C2-package-integration
+status: passed
+recorded_at: 2026-09-01
+generated_at_utc: 2026-09-01T01:21:38.399242+00:00
+framework:
+  repository: ruizengalways/enterprise-databrick-framework
+  sha: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
+  package_version: 0.5.0
+customer:
+  repository: ruizengalways/enterprise-databrick-customer
+  sha: ae69e351f065beb969d5fb7771562043e5352bbc
+workflow:
+  run_id: 33458402201
+  run_attempt: 1
+  event: pull_request
+artifact:
+  id: 9782271494
+  name: certification-evidence-ae69e351f065beb969d5fb7771562043e5352bbc
+  digest: sha256:256385a29bd22afcde91b464144845a1905e8408ccff7d597bb69f768eb03893
+  expires_at: 2026-11-30T01:21:17Z
+claims:
+  exact_framework_sha: passed
+  exact_customer_sha: passed
+  metadata_contract_validation: passed
+  python_compile_gate: passed
+  static_lint_gate: passed
+  deterministic_fixture_tests: passed
+  package_integration: passed
+  databricks_runtime: not_run
+  recovery_failure_injection: not_run
+scope:
+  passed_patterns: [P01, P02, P07, P10, P12]
+  planned_patterns: [P03, P04, P05, P06, P08, P09, P11, P13, P14]
+notes:
+  - This record certifies the strengthened P10 application-feed reconciliation metadata against released framework 0.5.0 by exact SHA.
+  - P10 application-feed parity now combines row count, Kafka delivery-identity count, source identity presence, and operation-category distribution.
+  - C3 real Databricks runtime and C4 recovery/failure injection remain not_run.

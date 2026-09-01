@@ -7,7 +7,7 @@ repository_heads_at_last_audit:
   data-engineering-cheetsheet: 3423eacb042c6c55625f2ff1ec294b03bca4e30d
   enterprise-databrick-framework: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
   enterprise-databrick-infra: bf7936de78553d3685b8edeaabfd9e32a5310536
-  enterprise-databrick-customer: c30dc4884e11a420d9fdfa93f361055b74313232
+  enterprise-databrick-customer: 625d3be634d1843dc77ebb61a9732497ae42fc3b
 
 certification_subject:
   framework_lock_file: certification/framework-lock.yml
@@ -20,16 +20,16 @@ latest_verified_local_package_run:
   selection_policy: latest_persisted_exact_sha_evidence
   level: C2
   status: passed
-  evidence_record: certification/evidence/c2-framework-0.5.0-2026-09-01.yml
-  customer_sha: a68730aa16b4010f67c0f70caafbe184b5f5c305
+  evidence_record: certification/evidence/c2-framework-0.5.0-p10-hardening-2026-09-01.yml
+  customer_sha: ae69e351f065beb969d5fb7771562043e5352bbc
   framework_sha: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
   framework_package_version: 0.5.0
-  workflow_run_id: 33457976942
+  workflow_run_id: 33458402201
   workflow_run_attempt: 1
-  artifact_id: 9782121568
-  artifact_digest: sha256:ffc58e9892cf1c84a64fd1598eea9fb64dde7f0eaf88cae6685e08bdb01978cf
-  artifact_expires_at: 2026-11-30T01:14:49Z
-  note: exact-SHA C2 evidence for released framework 0.5.0; later bookkeeping commits do not rewrite the certified customer SHA
+  artifact_id: 9782271494
+  artifact_digest: sha256:256385a29bd22afcde91b464144845a1905e8408ccff7d597bb69f768eb03893
+  artifact_expires_at: 2026-11-30T01:21:17Z
+  note: exact-SHA C2 evidence for strengthened P10 application-feed reconciliation against released framework 0.5.0; later bookkeeping commits do not rewrite the certified customer SHA
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
@@ -58,5 +58,6 @@ next_milestone:
   name: execute_zero_gap_c3_reconciliation
   description: >-
     Run the real Databricks C3 chain against the exact framework 0.5.0/customer subject when
-    explicitly authorized, exercising cutoff-consistent reconciliation with P10 operation_count as
-    application-feed parity and no declared reconciliation gaps. C4 recovery remains separate.
+    explicitly authorized, exercising cutoff-consistent P10 application-feed parity over row count,
+    delivery identity count/presence, and operation distribution with no declared reconciliation
+    gaps. C4 recovery remains separate.
