@@ -113,13 +113,9 @@ def test_reconciliation_plan_accounts_for_every_declared_rule_exactly_once() -> 
             assert declared[gap["rule_name"]] == gap["rule_kind"]
             assert gap["reason"].strip()
 
-    assert plan["patterns"]["P10"]["declared_gaps"] == [
-        {
-            "rule_name": "operation_counts",
-            "rule_kind": "operation_count",
-            "reason": "requires an application/audit relation that preserves applied operation semantics; the SCD2 target cannot safely reconstruct source operation counts",
-        }
-    ]
+    p10 = plan["patterns"]["P10"]
+    assert p10["groups"]["application_feed_parity"] == ["operation_counts"]
+    assert p10["declared_gaps"] == []
 
 
 def test_pipeline_reconciliation_and_verifier_cover_exact_same_pattern_set() -> None:
@@ -138,6 +134,7 @@ def test_pipeline_reconciliation_and_verifier_cover_exact_same_pattern_set() -> 
     assert "fixtures/p01_full_snapshot" in seed_source
     assert "persist_reconciliation_report" in reconcile_source
     assert "every declared reconciliation rule must be accounted for" in reconcile_source
+    assert "application_feed_parity" in reconcile_source
     assert "c3_reconciliation" in reconcile_source
     assert "read_reconciliation_summary" in verifier_source
     assert "c3_verification" in verifier_source
