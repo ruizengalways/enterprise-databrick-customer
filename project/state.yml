@@ -5,16 +5,16 @@ state_is_dynamic: true
 
 repository_heads_at_last_audit:
   data-engineering-cheetsheet: 3423eacb042c6c55625f2ff1ec294b03bca4e30d
-  enterprise-databrick-framework: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
+  enterprise-databrick-framework: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
   enterprise-databrick-infra: bf7936de78553d3685b8edeaabfd9e32a5310536
-  enterprise-databrick-customer: a6fdf7e92d99d18aeb9d518c9a179df306e2b903
+  enterprise-databrick-customer: c30dc4884e11a420d9fdfa93f361055b74313232
 
 certification_subject:
   framework_lock_file: certification/framework-lock.yml
   matrix_file: certification/matrix.yml
-  framework_sha: ac00aa9f29fa6664412b0e79f8ba86a1d0820eac
-  framework_package_version: 0.4.0
-  package_integration_status: passed
+  framework_sha: 6f1c3f5a0bbbc8e147db95a456201c3ff4d02729
+  framework_package_version: 0.5.0
+  package_integration_status: not_run
 
 latest_verified_local_package_run:
   selection_policy: latest_persisted_exact_sha_evidence
@@ -29,7 +29,8 @@ latest_verified_local_package_run:
   artifact_id: 9779075929
   artifact_digest: sha256:0b84f2b42efbf910032462dbcbaec8f32f6f80cbba0059a88c3717f0ef3ad421
   artifact_expires_at: 2026-11-29T23:03:54Z
-  note: exact-SHA C2 evidence for framework 0.4.0; later bookkeeping commits do not rewrite the certified customer SHA
+  superseded_by_certification_subject: true
+  note: exact-SHA C2 evidence for framework 0.4.0 retained as historical evidence while framework 0.5.0 is under recertification
 
 runtime_certification:
   C3_real_databricks_runtime: not_run
@@ -55,8 +56,9 @@ planned_reference_patterns:
   - P14
 
 next_milestone:
-  name: wire_reconciliation_into_c3
+  name: certify_framework_0_5_and_execute_zero_gap_c3_reconciliation
   description: >-
-    Add a cutoff-consistent reconciliation stage to the C3 Databricks certification chain for the
-    fully executable rule sets, preserve P10 operation_count as an explicit unsupported gap, and
-    keep C3/C4 not_run until real workspace and recovery evidence exist.
+    Generate fresh exact-SHA C2 evidence for released framework 0.5.0, then keep the C3 chain ready
+    to execute cutoff-consistent reconciliation with P10 operation_count as an application-feed
+    parity rule and no declared reconciliation gaps. C3/C4 remain not_run until real workspace and
+    recovery evidence exist.
