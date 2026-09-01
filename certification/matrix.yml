@@ -5,18 +5,18 @@ legend:
   not_run: harness/evidence has not executed at that level for the current framework lock
   passed: evidence exists for the exact current framework lock; the certified customer SHA is recorded under latest_local_evidence and need not equal the bookkeeping commit that persists this matrix
 patterns:
-  P01: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
-  P02: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
+  P01: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
+  P02: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P03: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P04: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P05: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P06: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
-  P07: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
+  P07: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P08: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P09: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
-  P10: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
+  P10: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P11: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
-  P12: {fixture: passed, metadata_contract: passed, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
+  P12: {fixture: passed, metadata_contract: not_run, local_semantics: passed, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P13: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
   P14: {fixture: planned, metadata_contract: planned, local_semantics: planned, package_integration: not_run, databricks_runtime: not_run, recovery: not_run}
 capabilities:
